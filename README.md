@@ -52,7 +52,7 @@ The long-term goal is to provide a musician‑friendly alternative to forScore/M
 ### Frontend (React + PDF.js)
 
 * Renders PDF pages using PDF.js (pdfjs-dist) in the browser
-* Manages page cache using sliding window approach (currently ±1 page)
+* Manages page cache using asymmetric sliding window (±4 back, ±5 ahead, disk WebP + memory)
 * Manages UI state: current page, zoom (disabled in performance mode), tool modes
 * Gesture/touch handler layer for page turning and annotation
 * Canvas layer for annotations overlaid on rendered pages
@@ -72,7 +72,7 @@ Responsibilities:
 2. Frontend reads PDF file using Tauri FS plugin
 3. PDF.js loads and parses the PDF document in the browser
 4. Frontend renders pages to Canvas elements using PDF.js
-5. Page cache stores rendered canvases (currently ±1 page from current)
+5. Page cache stores rendered pages (asymmetric sliding window with disk + memory layers)
 6. Annotation layer overlays on top of rendered pages
 7. On save: frontend sends annotation JSON → Rust writes to sidecar file (planned)
 
@@ -94,28 +94,37 @@ Responsibilities:
 
 ### Completed ✅
 
-* Open PDF file via file dialog
-* Render pages using PDF.js
-* Basic horizontal page navigation
-* Page cache with sliding window (±1 page)
-* Top and bottom toolbars with navigation controls
+* Open PDF file via file dialog or CLI argument
+* Render pages using PDF.js with disk-based WebP caching
+* Horizontal snap-to-page layout (CSS GPU-accelerated transforms)
+* Page cache with asymmetric sliding window (±4 back, ±5 ahead = 9 pages, disk + memory layers)
+* Floating top toolbar (notch-style, auto-hides in fullscreen)
+* Tap/swipe gestures for page navigation (@use-gesture/react)
+* Fullscreen performance mode (F5 key, 4-finger touch toggle)
+* Dual-page spread mode (auto-activates in landscape)
+* PDF metadata persistence via XMP (stores `starts_on_left`)
+* Settings system with JSON persistence (~/.config/open-legato/settings.json)
+* Configurable touch buttons (toolbar toggle, prev/next page)
+* Edit buttons mode — drag to reposition, pinch/scroll-wheel to resize, persisted to settings
+* Reset button customizations from Settings popup
+* Quit button in toolbar + Ctrl+Q shortcut
+* Pinch-to-zoom prevention (global touch event interception)
+* Stylus/pen detection infrastructure (Linux evdev in Rust)
+* Pointer debug overlay (Shift+D) for input device testing
 
 ### Next Steps for MVP (v0.1)
 
-* Fix horizontal snap-to-page layout
-* Expand page cache (±2 or ±3 pages)
-* Tap/swipe gestures for next/previous
-* Fullscreen performance mode
-* Annotation drawing (basic pen)
-* Save/restore annotations
+* Canvas pen tool for annotations (stylus infra done, drawing/rendering not yet connected)
+* Annotation persistence to sidecar storage (XMP infra exists, need to extend schema)
+* Cache invalidation refinement
 
 ### Post-MVP
 
-* Two-page spread mode
 * Advanced annotation tools (highlight, text, shapes)
+* Undo/redo stack for annotations
 * Setlist manager
-* Pedal mapping engine
-* Metadata extraction
+* External pedal mapping (USB/Bluetooth)
+* Metadata extraction (composer, title from PDF)
 * Dynamic scale based on window size
 
 ---
@@ -153,11 +162,9 @@ open-legato/
 
 ## 8. Open Questions for Implementation
 
-1. **Page cache size**: Expand from current ±1 (3 pages) to ±2 or ±3 (5-7 pages)? Max cache size (10-20)?
-2. **Cache eviction strategy**: Keep simple sliding window or implement LRU for larger cache?
-3. **Annotation storage format**: Per-page JSON files or single score JSON?
-4. **Scale policy**: Fixed scale (1.5x) or dynamic based on window size?
-5. **Annotation rendering**: Canvas2D or WebGL (Pixi/Konva)?
+1. **Annotation storage format**: Per-page JSON files or single score JSON?
+2. **Annotation rendering**: Canvas2D or WebGL (Pixi/Konva)?
+3. **Dynamic scale**: Currently renders at fullscreen size — add dynamic scaling based on window size?
 
 ---
 
@@ -168,16 +175,13 @@ After testing both approaches, we chose **PDF.js (frontend rendering)** over **p
 
 **Current Implementation:**
 - ✅ PDF.js integrated with worker configuration
-- ✅ Basic page navigation and caching (±1 page sliding window)
-- ✅ File system access via Tauri plugins
-- ⚠️ Horizontal snap-to-page layout needs refinement
-- ⚠️ Cache size should be expanded for smoother navigation
+- ✅ Snap-to-page horizontal layout with GPU-accelerated transforms
+- ✅ Asymmetric page cache (9 pages, disk WebP + memory layer)
+- ✅ Touch/swipe gestures, fullscreen mode, dual-page spreads
+- ✅ Settings persistence, customizable touch buttons with edit mode
+- ✅ Quit button + Ctrl+Q shortcut
 
 **Next Development Focus:**
-1. Fix snap-to-page layout issues
-2. Expand page cache (currently too small at 3 pages)
-3. Implement gesture controls
-4. Build annotation system
-5. Add fullscreen performance mode
-
-This document represents the complete vision and technical state of the Open Legato project.
+1. Canvas pen tool for annotations
+2. Annotation persistence (sidecar JSON)
+3. Cache invalidation refinement

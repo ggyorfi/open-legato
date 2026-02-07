@@ -158,7 +158,7 @@ function App() {
   const pinchRef = useRef({ initialDist: 0, baseSize: 0 })
   const pinchSizeRef = useRef<number | null>(null)
   const wheelSizeRef = useRef<number | null>(null)
-  const wheelTimeoutRef = useRef<ReturnType<typeof setTimeout>>()
+  const wheelTimeoutRef = useRef<ReturnType<typeof setTimeout>>(null)
 
   useEffect(() => {
 
@@ -214,7 +214,7 @@ function App() {
       const newSize = Math.max(100, Math.min(780, currentSize + delta))
       wheelSizeRef.current = newSize
       setPinchSize(newSize)
-      clearTimeout(wheelTimeoutRef.current)
+      clearTimeout(wheelTimeoutRef.current ?? undefined)
       wheelTimeoutRef.current = setTimeout(() => {
         handleButtonResize(selectedButtonId, newSize)
         wheelSizeRef.current = null
