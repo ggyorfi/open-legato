@@ -1,13 +1,15 @@
 import { getVersion } from "@tauri-apps/api/app"
 import { getCurrentWindow } from "@tauri-apps/api/window"
 import { open } from "@tauri-apps/plugin-dialog"
-import { Settings } from "lucide-react"
+import { LogOut, Move, Settings } from "lucide-react"
 import { useEffect, useState } from "react"
 
 interface TopToolbarProps {
   pdfPath?: string
   onOpenPdf: (path: string) => void
   onOpenSettings: () => void
+  onToggleEditButtons: () => void
+  editButtonsMode: boolean
   isVisible?: boolean
 }
 
@@ -15,6 +17,8 @@ export function TopToolbar({
   pdfPath,
   onOpenPdf,
   onOpenSettings,
+  onToggleEditButtons,
+  editButtonsMode,
   isVisible = true,
 }: TopToolbarProps) {
   const [version, setVersion] = useState<string>()
@@ -87,11 +91,27 @@ export function TopToolbar({
         {version && <span className="toolbar-version">v{version}</span>}
         <button
           type="button"
+          onClick={onToggleEditButtons}
+          className={`edit-buttons-button${editButtonsMode ? " edit-buttons-button--active" : ""}`}
+          aria-label="Edit buttons"
+        >
+          <Move size={32} />
+        </button>
+        <button
+          type="button"
           onClick={onOpenSettings}
           className="settings-button"
           aria-label="Settings"
         >
           <Settings size={32} />
+        </button>
+        <button
+          type="button"
+          onClick={() => getCurrentWindow().close()}
+          className="settings-button"
+          aria-label="Quit"
+        >
+          <LogOut size={32} />
         </button>
       </div>
     </div>

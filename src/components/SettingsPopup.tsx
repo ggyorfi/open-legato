@@ -74,6 +74,20 @@ export function SettingsPopup({
             </button>
           </label>
 
+          <div className="settings-row-center">
+            <button
+              type="button"
+              className="settings-reset-button"
+              disabled={!settings.buttonOverrides}
+              onClick={() => {
+                const { buttonOverrides: _, ...rest } = settings
+                onSettingsChange(rest)
+              }}
+            >
+              Reset button positions &amp; sizes
+            </button>
+          </div>
+
           {/* Document settings - only shown when a PDF is loaded */}
           {documentSettings && (
             <>

@@ -5,8 +5,15 @@ import {
   writeTextFile,
 } from "@tauri-apps/plugin-fs"
 
+export type TouchButtonOverride = {
+  offsetX?: number
+  offsetY?: number
+  size?: number
+}
+
 export type AppSettings = {
   showTouchButtons: boolean
+  buttonOverrides?: Record<string, TouchButtonOverride>
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
@@ -14,8 +21,7 @@ const DEFAULT_SETTINGS: AppSettings = {
 }
 
 const SETTINGS_DIR = "open-legato"
-const SETTINGS_FILE = "settings.json"
-const SETTINGS_PATH = `${SETTINGS_DIR}/${SETTINGS_FILE}`
+const SETTINGS_PATH = `${SETTINGS_DIR}/settings.json`
 
 export async function loadSettings(): Promise<AppSettings> {
   try {
@@ -31,7 +37,6 @@ export async function loadSettings(): Promise<AppSettings> {
 
 export async function saveSettings(settings: AppSettings): Promise<void> {
   try {
-    // Ensure directory exists
     await mkdir(SETTINGS_DIR, {
       baseDir: BaseDirectory.Config,
       recursive: true,

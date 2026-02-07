@@ -20,6 +20,25 @@ export type TouchButtonConfig = {
   action: ButtonAction
 }
 
+import type { TouchButtonOverride } from "./settings"
+
+export function resolveButtons(
+  defaults: TouchButtonConfig[],
+  overrides?: Record<string, TouchButtonOverride>,
+): TouchButtonConfig[] {
+  if (!overrides) return defaults
+  return defaults.map((btn) => {
+    const o = overrides[btn.id]
+    if (!o) return btn
+    return {
+      ...btn,
+      ...(o.offsetX !== undefined && { offsetX: o.offsetX }),
+      ...(o.offsetY !== undefined && { offsetY: o.offsetY }),
+      ...(o.size !== undefined && { size: o.size }),
+    }
+  })
+}
+
 export const defaultTouchButtons: TouchButtonConfig[] = [
   {
     id: "toolbar-toggle",
@@ -27,7 +46,7 @@ export const defaultTouchButtons: TouchButtonConfig[] = [
     offsetX: 0,
     offsetY: 2,
     relativeTo: "viewport",
-    size: 200,
+    size: 400,
     color: "red",
     opacity: 0.15,
     action: "toggleToolbar",
@@ -38,7 +57,7 @@ export const defaultTouchButtons: TouchButtonConfig[] = [
     offsetX: 2,
     offsetY: 2,
     relativeTo: "viewport",
-    size: 300,
+    size: 600,
     color: "cyan",
     opacity: 0.15,
     action: "prevPage",
@@ -49,7 +68,7 @@ export const defaultTouchButtons: TouchButtonConfig[] = [
     offsetX: 2,
     offsetY: 2,
     relativeTo: "viewport",
-    size: 300,
+    size: 600,
     color: "cyan",
     opacity: 0.15,
     action: "nextPage",

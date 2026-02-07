@@ -13,12 +13,16 @@
       "allow": [{ "path": "/**" }]
     },
     {
+      "identifier": "fs:allow-write-text-file",
+      "allow": [{ "path": "$CONFIG/open-legato/**" }]
+    },
+    {
       "identifier": "fs:allow-write-file",
       "allow": [{ "path": "$APPCACHE/**" }]
     },
     {
       "identifier": "fs:allow-mkdir",
-      "allow": [{ "path": "$APPCACHE/**" }]
+      "allow": [{ "path": "$APPCACHE/**" }, { "path": "$CONFIG/open-legato" }]
     },
     {
       "identifier": "fs:allow-exists",
@@ -27,6 +31,7 @@
     "fs:default",
     "core:window:allow-set-fullscreen",
     "core:window:allow-is-fullscreen",
+    "core:window:allow-close",
     "core:path:default"
   ]
 }
