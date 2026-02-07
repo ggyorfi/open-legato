@@ -1,13 +1,44 @@
+import { getVersion } from "@tauri-apps/api/app"
+import { getCurrentWindow } from "@tauri-apps/api/window"
 import { open } from "@tauri-apps/plugin-dialog"
+import { Settings } from "lucide-react"
+import { useEffect, useState } from "react"
 
 interface TopToolbarProps {
   pdfPath?: string
   onOpenPdf: (path: string) => void
+  onOpenSettings: () => void
+  isVisible?: boolean
 }
 
-export function TopToolbar({ pdfPath, onOpenPdf }: TopToolbarProps) {
+export function TopToolbar({
+  pdfPath,
+  onOpenPdf,
+  onOpenSettings,
+  isVisible = true,
+}: TopToolbarProps) {
+  const [version, setVersion] = useState<string>()
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+
+  useEffect(() => {
+    getVersion().then(setVersion)
+  }, [])
+
   const handleOpenPdf = async () => {
+    if (isDialogOpen) return
+
+    setIsDialogOpen(true)
+    const appWindow = getCurrentWindow()
+    let wasFullscreen = false
+
     try {
+      wasFullscreen = await appWindow.isFullscreen()
+
+      // Temporarily exit fullscreen so dialog appears on top
+      if (wasFullscreen) {
+        await appWindow.setFullscreen(false)
+      }
+
       const selected = await open({
         multiple: false,
         filters: [{ name: "PDF", extensions: ["pdf"] }],
@@ -18,36 +49,51 @@ export function TopToolbar({ pdfPath, onOpenPdf }: TopToolbarProps) {
       }
     } catch (err) {
       console.error("Failed to open file:", err)
+    } finally {
+      // Restore fullscreen if it was active
+      if (wasFullscreen) {
+        await appWindow.setFullscreen(true)
+      }
+      setIsDialogOpen(false)
     }
   }
 
+  const containerClass = `floating-toolbar-container${isVisible ? "" : " floating-toolbar-container--hidden"}`
+
   return (
-    <div
-      style={{
-        padding: "1rem",
-        background: "#2a2a2a",
-        borderBottom: "1px solid #444",
-      }}
-    >
-      <button
-        onClick={handleOpenPdf}
-        style={{
-          padding: "0.5rem 1rem",
-          background: "#0066cc",
-          color: "white",
-          border: "none",
-          borderRadius: "4px",
-          cursor: "pointer",
-          fontSize: "14px",
-        }}
-      >
-        Open PDF
-      </button>
-      {pdfPath && (
-        <span style={{ marginLeft: "1rem", color: "#ccc", fontSize: "14px" }}>
-          {pdfPath.split("/").pop()}
-        </span>
-      )}
+    <div className={containerClass}>
+      <div className="floating-toolbar">
+        <svg
+          className="floating-toolbar-bg"
+          viewBox="0 0 200 56"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M0,0 L10,44 Q12,56 24,56 L176,56 Q188,56 190,44 L200,0 Z"
+            fill="#2a2a2a"
+          />
+        </svg>
+        <button
+          type="button"
+          onClick={handleOpenPdf}
+          className="toolbar-button"
+        >
+          Open PDF
+        </button>
+        {pdfPath && (
+          <span className="toolbar-filename">{pdfPath.split("/").pop()}</span>
+        )}
+        {version && <span className="toolbar-version">v{version}</span>}
+        <button
+          type="button"
+          onClick={onOpenSettings}
+          className="settings-button"
+          aria-label="Settings"
+        >
+          <Settings size={32} />
+        </button>
+      </div>
     </div>
   )
 }

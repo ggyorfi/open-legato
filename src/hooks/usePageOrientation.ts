@@ -13,7 +13,11 @@ export const usePageOrientation = (): PageOrientation => {
     }
 
     window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
+    screen.orientation?.addEventListener("change", handleResize)
+    return () => {
+      window.removeEventListener("resize", handleResize)
+      screen.orientation?.removeEventListener("change", handleResize)
+    }
   }, [])
 
   return isLandscape ? "landscape" : "portrait"

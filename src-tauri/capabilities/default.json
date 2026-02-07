@@ -8,7 +8,25 @@
     "opener:default",
     "dialog:allow-open",
     "dialog:default",
-    "fs:allow-read-file",
-    "fs:default"
+    {
+      "identifier": "fs:allow-read-file",
+      "allow": [{ "path": "/**" }]
+    },
+    {
+      "identifier": "fs:allow-write-file",
+      "allow": [{ "path": "$APPCACHE/**" }]
+    },
+    {
+      "identifier": "fs:allow-mkdir",
+      "allow": [{ "path": "$APPCACHE/**" }]
+    },
+    {
+      "identifier": "fs:allow-exists",
+      "allow": [{ "path": "$APPCACHE/**" }]
+    },
+    "fs:default",
+    "core:window:allow-set-fullscreen",
+    "core:window:allow-is-fullscreen",
+    "core:path:default"
   ]
 }

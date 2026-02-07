@@ -1,55 +1,54 @@
-import { type PdfDocumentApi } from "../hooks/usePdfDocument"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
+import type { PdfDocumentApi } from "../hooks/usePdfDocument"
 
 type PdfPageProps = {
-  getPage: PdfDocumentApi["getPage"]
+  getPageImageUrl: PdfDocumentApi["getPageImageUrl"]
   pageNum: number
   currentPageNum: number
 }
 
-export const PdfPage = ({ getPage, pageNum, currentPageNum }: PdfPageProps) => {
-  const [sourceCanvas, setSourceCanvas] = useState<HTMLCanvasElement>()
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+export const PdfPage = ({
+  getPageImageUrl,
+  pageNum,
+  currentPageNum,
+}: PdfPageProps) => {
+  const [imageUrl, setImageUrl] = useState<string>()
 
-  const renderPage =
-    pageNum >= currentPageNum - 2 && pageNum <= currentPageNum + 2
+  // Asymmetric: 4 pages back, 5 pages ahead for smoother navigation
+  const shouldRender =
+    pageNum >= currentPageNum - 4 && pageNum <= currentPageNum + 5
 
   useEffect(() => {
-    ; (async () => {
+    if (!shouldRender) {
+      setImageUrl(undefined)
+      return
+    }
+
+    let cancelled = false
+
+    ;(async () => {
       try {
-        if (renderPage) {
-          const page = await getPage(pageNum)
-          if (page) {
-            setSourceCanvas(page)
-          }
-        } else {
-          setSourceCanvas(undefined)
+        const url = await getPageImageUrl(pageNum)
+        if (!cancelled && url) {
+          setImageUrl(url)
         }
       } catch (error) {
-        console.error(error)
+        console.error("Failed to load page image:", error)
       }
     })()
-  }, [pageNum, renderPage, getPage])
 
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (canvas && sourceCanvas) {
-      canvas.width = sourceCanvas.width
-      canvas.height = sourceCanvas.height
-      const ctx = canvas.getContext("2d")
-      if (ctx) {
-        ctx.drawImage(sourceCanvas, 0, 0)
-      }
+    return () => {
+      cancelled = true
     }
-  }, [sourceCanvas])
-
-  if (!renderPage) {
-    return <div className="page-wrap" />
-  }
+  }, [pageNum, shouldRender, getPageImageUrl])
 
   return (
     <div className="page-wrap">
-      {sourceCanvas ? <canvas ref={canvasRef} /> : <div>Loading...</div>}
+      {shouldRender && imageUrl ? (
+        <img src={imageUrl} alt={`Page ${pageNum + 1}`} draggable={false} />
+      ) : shouldRender ? (
+        <div>Loading...</div>
+      ) : null}
     </div>
   )
 }

@@ -1,0 +1,371 @@
+{
+  "device": {
+    "name": "Wacom HID 5402 Pen",
+    "path": "/dev/input/event7",
+    "is_pen": true,
+    "is_touch": false
+  },
+  "stylusEvents": [],
+  "rawEvents": [
+    {
+      "event_type": 3,
+      "code": 0,
+      "value": 19881
+    },
+    {
+      "event_type": 3,
+      "code": 1,
+      "value": 10246
+    },
+    {
+      "event_type": 3,
+      "code": 26,
+      "value": 2775
+    },
+    {
+      "event_type": 3,
+      "code": 27,
+      "value": 1805
+    },
+    {
+      "event_type": 4,
+      "code": 5,
+      "value": 35237
+    },
+    {
+      "event_type": 1,
+      "code": 320,
+      "value": 1
+    },
+    {
+      "event_type": 4,
+      "code": 0,
+      "value": -2145267092
+    },
+    {
+      "event_type": 3,
+      "code": 40,
+      "value": 34579
+    },
+    {
+      "event_type": 0,
+      "code": 0,
+      "value": 0
+    },
+    {
+      "event_type": 3,
+      "code": 24,
+      "value": 1173
+    },
+    {
+      "event_type": 4,
+      "code": 5,
+      "value": 35238
+    },
+    {
+      "event_type": 1,
+      "code": 330,
+      "value": 1
+    },
+    {
+      "event_type": 4,
+      "code": 0,
+      "value": -2145267092
+    },
+    {
+      "event_type": 0,
+      "code": 0,
+      "value": 0
+    },
+    {
+      "event_type": 3,
+      "code": 0,
+      "value": 19922
+    },
+    {
+      "event_type": 3,
+      "code": 1,
+      "value": 10229
+    },
+    {
+      "event_type": 4,
+      "code": 5,
+      "value": 35271
+    },
+    {
+      "event_type": 4,
+      "code": 0,
+      "value": -2145267092
+    },
+    {
+      "event_type": 0,
+      "code": 0,
+      "value": 0
+    },
+    {
+      "event_type": 3,
+      "code": 0,
+      "value": 19966
+    },
+    {
+      "event_type": 3,
+      "code": 1,
+      "value": 10210
+    },
+    {
+      "event_type": 3,
+      "code": 24,
+      "value": 1186
+    },
+    {
+      "event_type": 4,
+      "code": 5,
+      "value": 35305
+    },
+    {
+      "event_type": 4,
+      "code": 0,
+      "value": -2145267092
+    },
+    {
+      "event_type": 0,
+      "code": 0,
+      "value": 0
+    },
+    {
+      "event_type": 3,
+      "code": 0,
+      "value": 20010
+    },
+    {
+      "event_type": 3,
+      "code": 1,
+      "value": 10191
+    },
+    {
+      "event_type": 3,
+      "code": 24,
+      "value": 1193
+    },
+    {
+      "event_type": 4,
+      "code": 5,
+      "value": 35335
+    },
+    {
+      "event_type": 4,
+      "code": 0,
+      "value": -2145267092
+    },
+    {
+      "event_type": 0,
+      "code": 0,
+      "value": 0
+    },
+    {
+      "event_type": 3,
+      "code": 0,
+      "value": 20062
+    },
+    {
+      "event_type": 3,
+      "code": 1,
+      "value": 10171
+    },
+    {
+      "event_type": 3,
+      "code": 24,
+      "value": 1201
+    },
+    {
+      "event_type": 4,
+      "code": 5,
+      "value": 35365
+    },
+    {
+      "event_type": 4,
+      "code": 0,
+      "value": -2145267092
+    },
+    {
+      "event_type": 0,
+      "code": 0,
+      "value": 0
+    },
+    {
+      "event_type": 3,
+      "code": 0,
+      "value": 20130
+    },
+    {
+      "event_type": 3,
+      "code": 1,
+      "value": 10148
+    },
+    {
+      "event_type": 3,
+      "code": 24,
+      "value": 1200
+    },
+    {
+      "event_type": 4,
+      "code": 5,
+      "value": 35399
+    },
+    {
+      "event_type": 4,
+      "code": 0,
+      "value": -2145267092
+    },
+    {
+      "event_type": 0,
+      "code": 0,
+      "value": 0
+    },
+    {
+      "event_type": 3,
+      "code": 0,
+      "value": 20201
+    },
+    {
+      "event_type": 3,
+      "code": 1,
+      "value": 10127
+    },
+    {
+      "event_type": 4,
+      "code": 5,
+      "value": 35433
+    },
+    {
+      "event_type": 4,
+      "code": 0,
+      "value": -2145267092
+    },
+    {
+      "event_type": 0,
+      "code": 0,
+      "value": 0
+    },
+    {
+      "event_type": 3,
+      "code": 0,
+      "value": 20262
+    },
+    {
+      "event_type": 3,
+      "code": 1,
+      "value": 10115
+    },
+    {
+      "event_type": 3,
+      "code": 24,
+      "value": 1198
+    },
+    {
+      "event_type": 3,
+      "code": 26,
+      "value": 2774
+    },
+    {
+      "event_type": 3,
+      "code": 27,
+      "value": 1802
+    },
+    {
+      "event_type": 4,
+      "code": 5,
+      "value": 35467
+    },
+    {
+      "event_type": 4,
+      "code": 0,
+      "value": -2145267092
+    },
+    {
+      "event_type": 0,
+      "code": 0,
+      "value": 0
+    },
+    {
+      "event_type": 3,
+      "code": 0,
+      "value": 20318
+    },
+    {
+      "event_type": 3,
+      "code": 1,
+      "value": 10101
+    },
+    {
+      "event_type": 3,
+      "code": 24,
+      "value": 1230
+    },
+    {
+      "event_type": 3,
+      "code": 26,
+      "value": 2773
+    },
+    {
+      "event_type": 3,
+      "code": 27,
+      "value": 1799
+    },
+    {
+      "event_type": 4,
+      "code": 5,
+      "value": 35501
+    },
+    {
+      "event_type": 4,
+      "code": 0,
+      "value": -2145267092
+    },
+    {
+      "event_type": 0,
+      "code": 0,
+      "value": 0
+    },
+    {
+      "event_type": 3,
+      "code": 0,
+      "value": 20358
+    },
+    {
+      "event_type": 3,
+      "code": 1,
+      "value": 10091
+    },
+    {
+      "event_type": 3,
+      "code": 24,
+      "value": 1254
+    },
+    {
+      "event_type": 3,
+      "code": 26,
+      "value": 2772
+    },
+    {
+      "event_type": 3,
+      "code": 27,
+      "value": 1797
+    },
+    {
+      "event_type": 4,
+      "code": 5,
+      "value": 35531
+    },
+    {
+      "event_type": 4,
+      "code": 0,
+      "value": -2145267092
+    },
+    {
+      "event_type": 0,
+      "code": 0,
+      "value": 0
+    }
+  ]
+}

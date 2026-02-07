@@ -1,0 +1,2 @@
+[target.x86_64-unknown-linux-gnu]
+rustflags = ["-C", "link-arg=-Wl,--version-script=/home/ggyorfi/Projects/open-legato/src-tauri/version.script"]

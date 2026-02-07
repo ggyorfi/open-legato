@@ -134,7 +134,7 @@ Responsibilities:
 ```
 open-legato/
   src/                     # React UI
-    components/            # TopToolbar, BottomToolbar, PdfViewerJs
+    components/            # TopToolbar, PdfViewerJs
     hooks/                 # usePdfDocument, usePdfNavigation
     annotation/            # (planned)
   src-tauri/

@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useCallback, useEffect } from "react"
 
 interface UsePdfNavigationProps {
   currentPage: number
@@ -13,17 +13,17 @@ export function usePdfNavigation({
   onNextPage,
   onPrevPage,
 }: UsePdfNavigationProps) {
-  const goToNextPage = () => {
+  const goToNextPage = useCallback(() => {
     if (currentPage < totalPages) {
       onNextPage()
     }
-  }
+  }, [currentPage, totalPages, onNextPage])
 
-  const goToPrevPage = () => {
+  const goToPrevPage = useCallback(() => {
     if (currentPage > 1) {
       onPrevPage()
     }
-  }
+  }, [currentPage, onPrevPage])
 
   // Keyboard navigation
   useEffect(() => {
@@ -39,7 +39,7 @@ export function usePdfNavigation({
 
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [currentPage, totalPages])
+  }, [goToNextPage, goToPrevPage])
 
   return {
     goToNextPage,
