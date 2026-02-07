@@ -107,8 +107,9 @@ Responsibilities:
 * Configurable touch buttons (toolbar toggle, prev/next page)
 * Edit buttons mode — drag to reposition, pinch/scroll-wheel to resize, persisted to settings
 * Reset button customizations from Settings popup
-* Quit button in toolbar + Ctrl+Q shortcut
+* Quit button in toolbar + Ctrl+Q shortcut (with confirmation dialog)
 * Pinch-to-zoom prevention (global touch event interception)
+* Unified button component styles (pill-button primary/secondary/destructive, icon-button)
 * Stylus/pen detection infrastructure (Linux evdev in Rust)
 * Pointer debug overlay (Shift+D) for input device testing
 
@@ -179,7 +180,7 @@ After testing both approaches, we chose **PDF.js (frontend rendering)** over **p
 - ✅ Asymmetric page cache (9 pages, disk WebP + memory layer)
 - ✅ Touch/swipe gestures, fullscreen mode, dual-page spreads
 - ✅ Settings persistence, customizable touch buttons with edit mode
-- ✅ Quit button + Ctrl+Q shortcut
+- ✅ Quit with confirmation dialog + Ctrl+Q shortcut
 
 **Next Development Focus:**
 1. Canvas pen tool for annotations

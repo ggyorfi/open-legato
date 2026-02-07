@@ -30,6 +30,7 @@ function App() {
   })
   const [startsOnLeft, setStartsOnLeft] = useState<boolean | null>(null)
   const [editButtonsMode, setEditButtonsMode] = useState(false)
+  const [quitConfirmOpen, setQuitConfirmOpen] = useState(false)
   const [selectedButtonId, setSelectedButtonId] = useState<string | null>(null)
   const [pinchSize, setPinchSize] = useState<number | null>(null)
   const pdfViewerRef = useRef<PdfViewerHandle>(null)
@@ -81,7 +82,7 @@ function App() {
       }
       if (e.key === "q" && e.ctrlKey) {
         e.preventDefault()
-        getCurrentWindow().close()
+        setQuitConfirmOpen(true)
       }
     }
 
@@ -240,6 +241,7 @@ function App() {
         pdfPath={pdfPath}
         onOpenPdf={setPdfPath}
         onOpenSettings={() => setSettingsOpen(true)}
+        onQuit={() => setQuitConfirmOpen(true)}
         onToggleEditButtons={() => {
           setEditButtonsMode((v) => !v)
           setSelectedButtonId(null)
@@ -284,6 +286,17 @@ function App() {
         />
       )}
       {!isFullscreen && <PointerDebugOverlay />}
+      {quitConfirmOpen && (
+        <div className="settings-backdrop" onClick={() => setQuitConfirmOpen(false)}>
+          <div className="quit-confirm" onClick={(e) => e.stopPropagation()}>
+            <p>Quit Open Legato?</p>
+            <div className="quit-confirm-buttons">
+              <button type="button" className="pill-button pill-button--secondary quit-confirm-btn" onClick={() => setQuitConfirmOpen(false)}>Cancel</button>
+              <button type="button" className="pill-button pill-button--destructive quit-confirm-btn" onClick={() => getCurrentWindow().close()}>Quit</button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }

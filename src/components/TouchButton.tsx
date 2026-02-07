@@ -130,7 +130,7 @@ export const TouchButton = ({
     window.addEventListener("mouseup", onMouseUp)
   }
 
-  const alpha = !visible ? 0 : selected ? 0.5 : editMode ? 0.35 : config.opacity
+  const alpha = editMode ? (selected ? 0.5 : 0.35) : !visible ? 0 : config.opacity
   const bgColor = `rgba(${r}, ${g}, ${b}, ${alpha})`
 
   let className = "touch-button"

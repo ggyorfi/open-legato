@@ -9,6 +9,7 @@ interface TopToolbarProps {
   onOpenPdf: (path: string) => void
   onOpenSettings: () => void
   onToggleEditButtons: () => void
+  onQuit: () => void
   editButtonsMode: boolean
   isVisible?: boolean
 }
@@ -18,6 +19,7 @@ export function TopToolbar({
   onOpenPdf,
   onOpenSettings,
   onToggleEditButtons,
+  onQuit,
   editButtonsMode,
   isVisible = true,
 }: TopToolbarProps) {
@@ -81,7 +83,7 @@ export function TopToolbar({
         <button
           type="button"
           onClick={handleOpenPdf}
-          className="toolbar-button"
+          className="pill-button"
         >
           Open PDF
         </button>
@@ -92,7 +94,7 @@ export function TopToolbar({
         <button
           type="button"
           onClick={onToggleEditButtons}
-          className={`edit-buttons-button${editButtonsMode ? " edit-buttons-button--active" : ""}`}
+          className={`icon-button${editButtonsMode ? " icon-button--active" : ""}`}
           aria-label="Edit buttons"
         >
           <Move size={32} />
@@ -100,15 +102,15 @@ export function TopToolbar({
         <button
           type="button"
           onClick={onOpenSettings}
-          className="settings-button"
+          className="icon-button"
           aria-label="Settings"
         >
           <Settings size={32} />
         </button>
         <button
           type="button"
-          onClick={() => getCurrentWindow().close()}
-          className="settings-button"
+          onClick={onQuit}
+          className="icon-button"
           aria-label="Quit"
         >
           <LogOut size={32} />

@@ -207,73 +207,59 @@ button {
   margin-right: 3rem;
 }
 
-/* Larger touch-friendly button for floating toolbar */
-.toolbar-button {
-  padding: 0.5rem 1rem;
+/* Shared button styles */
+.pill-button {
+  padding: 0.625rem 1.25rem;
   background: #0066cc;
   color: white;
   border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  white-space: nowrap;
-}
-
-.floating-toolbar .toolbar-button {
-  padding: 0.625rem 1.25rem;
-  font-size: 17.5px;
   border-radius: 999px;
+  cursor: pointer;
+  font-size: 17.5px;
+  white-space: nowrap;
+  box-shadow: none;
+  transition: none;
 }
 
-/* Settings button in toolbar */
-.settings-button {
+.pill-button:hover {
+  border: none;
+}
+
+.pill-button:active {
+  background: #1a7adf;
+  border: none;
+}
+
+.pill-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.pill-button:disabled:active {
+  background: #0066cc;
+}
+
+.icon-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.625rem;
+  padding: 0.75rem;
   background: transparent;
   border: none;
   color: #fff;
   cursor: pointer;
   border-radius: 8px;
   box-shadow: none;
+  transition: none;
 }
 
-.settings-button:hover,
-.settings-button:active {
+.icon-button:hover,
+.icon-button:active {
   border: none;
   background: transparent;
 }
 
-.floating-toolbar .settings-button {
-  padding: 0.75rem;
-}
-
-/* Edit buttons toggle in toolbar */
-.edit-buttons-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.625rem;
-  background: transparent;
-  border: none;
-  color: #fff;
-  cursor: pointer;
-  border-radius: 8px;
-  box-shadow: none;
-}
-
-.edit-buttons-button:hover,
-.edit-buttons-button:active {
-  border: none;
-  background: transparent;
-}
-
-.floating-toolbar .edit-buttons-button {
-  padding: 0.75rem;
-}
-
-.edit-buttons-button--active {
+.icon-button--active {
   color: #4da6ff;
 }
 
@@ -296,6 +282,47 @@ button {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
+/* Quit confirm dialog */
+.quit-confirm {
+  background: #2a2a2a;
+  border-radius: 20px;
+  padding: 1.5rem 2rem;
+  text-align: center;
+  color: #fff;
+  font-size: 1.2rem;
+}
+
+.quit-confirm p {
+  margin: 0 0 1.5rem;
+}
+
+.quit-confirm-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.quit-confirm-btn {
+  width: 8rem;
+}
+
+.pill-button--secondary {
+  background: #fff;
+  color: #0066cc;
+}
+
+.pill-button--destructive {
+  background: #cc2200;
+}
+
+.pill-button--destructive:active {
+  background: #e03a1a;
+}
+
+.pill-button--secondary:active {
+  background: #e8e8e8;
+}
+
 .settings-header {
   display: flex;
   align-items: center;
@@ -313,25 +340,6 @@ button {
   color: #fff;
 }
 
-.settings-close {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.625rem;
-  background: transparent;
-  border: none;
-  color: #fff;
-  cursor: pointer;
-  border-radius: 8px;
-  box-shadow: none;
-}
-
-.settings-close:hover,
-.settings-close:active {
-  border: none;
-  background: transparent;
-}
-
 .settings-content {
   padding: 1.5rem;
   display: flex;
@@ -342,29 +350,6 @@ button {
 .settings-row-center {
   display: flex;
   justify-content: center;
-}
-
-.settings-reset-button {
-  padding: 0.625rem 1.25rem;
-  background: #0066cc;
-  color: white;
-  border: none;
-  border-radius: 999px;
-  font-size: 17.5px;
-  cursor: pointer;
-  box-shadow: none;
-  white-space: nowrap;
-}
-
-.settings-reset-button:hover,
-.settings-reset-button:active {
-  background: #0066cc;
-  border: none;
-}
-
-.settings-reset-button:disabled {
-  opacity: 0.4;
-  cursor: default;
 }
 
 .settings-row {

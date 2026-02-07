@@ -52,7 +52,7 @@ export function SettingsPopup({
           <h2>Settings</h2>
           <button
             type="button"
-            className="settings-close"
+            className="icon-button"
             onClick={onClose}
             aria-label="Close settings"
           >
@@ -77,7 +77,7 @@ export function SettingsPopup({
           <div className="settings-row-center">
             <button
               type="button"
-              className="settings-reset-button"
+              className="pill-button"
               disabled={!settings.buttonOverrides}
               onClick={() => {
                 const { buttonOverrides: _, ...rest } = settings
