@@ -1,43 +1,34 @@
 import { appCacheDir, join } from "@tauri-apps/api/path"
 import { exists, mkdir, readFile, writeFile } from "@tauri-apps/plugin-fs"
 
-// Simple hash function for cache keys
-// TODO: Consider improved cache invalidation strategy:
-// - Current: hash file path only (fast, but doesn't detect content changes)
-// - Better: hash path + mtime + file size (invalidates on actual changes, still fast)
-const hashString = (str: string): string => {
-  let hash = 0
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i)
-    hash = (hash << 5) - hash + char
-    hash = hash & hash // Convert to 32-bit integer
-  }
-  return Math.abs(hash).toString(36)
-}
+// Cache directory is keyed by PDF content ID (permanent /ID from PDF trailer).
+// This means:
+// - Same PDF at different paths → shares cache (same content ID)
+// - PDF with updated annotations/metadata → cache preserved (permanent ID stable)
+// - Truly different PDF content → cache invalidated (different ID)
 
-// Get the cache directory for a specific PDF
-const getPdfCacheDir = async (pdfPath: string): Promise<string> => {
+// Get the cache directory for a specific PDF by its content ID
+const getPdfCacheDir = async (contentId: string): Promise<string> => {
   const cacheDir = await appCacheDir()
-  const pdfHash = hashString(pdfPath)
-  return join(cacheDir, "pages", pdfHash)
+  return join(cacheDir, "pages", contentId)
 }
 
 // Get the cache path for a specific page
 const getPageCachePath = async (
-  pdfPath: string,
+  contentId: string,
   pageNum: number
 ): Promise<string> => {
-  const pdfCacheDir = await getPdfCacheDir(pdfPath)
+  const pdfCacheDir = await getPdfCacheDir(contentId)
   return join(pdfCacheDir, `${pageNum}.webp`)
 }
 
 // Check if a cached page image exists
 export const hasCachedPage = async (
-  pdfPath: string,
+  contentId: string,
   pageNum: number
 ): Promise<boolean> => {
   try {
-    const cachePath = await getPageCachePath(pdfPath, pageNum)
+    const cachePath = await getPageCachePath(contentId, pageNum)
     return await exists(cachePath)
   } catch {
     return false
@@ -46,11 +37,11 @@ export const hasCachedPage = async (
 
 // Load a cached page image as a blob URL
 export const loadCachedPage = async (
-  pdfPath: string,
+  contentId: string,
   pageNum: number
 ): Promise<string | null> => {
   try {
-    const cachePath = await getPageCachePath(pdfPath, pageNum)
+    const cachePath = await getPageCachePath(contentId, pageNum)
     const data = await readFile(cachePath)
     const blob = new Blob([data], { type: "image/webp" })
     return URL.createObjectURL(blob)
@@ -61,12 +52,12 @@ export const loadCachedPage = async (
 
 // Save a canvas as a cached WebP image
 export const saveCachedPage = async (
-  pdfPath: string,
+  contentId: string,
   pageNum: number,
   canvas: HTMLCanvasElement
 ): Promise<string> => {
-  const pdfCacheDir = await getPdfCacheDir(pdfPath)
-  const cachePath = await getPageCachePath(pdfPath, pageNum)
+  const pdfCacheDir = await getPdfCacheDir(contentId)
+  const cachePath = await getPageCachePath(contentId, pageNum)
 
   // Ensure cache directory exists
   try {

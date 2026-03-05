@@ -13,6 +13,7 @@ export type TouchButtonOverride = {
 
 export type AppSettings = {
   showTouchButtons: boolean
+  mirrorPagerButtons?: boolean
   buttonOverrides?: Record<string, TouchButtonOverride>
 }
 
@@ -29,8 +30,8 @@ export async function loadSettings(): Promise<AppSettings> {
       baseDir: BaseDirectory.Config,
     })
     return { ...DEFAULT_SETTINGS, ...JSON.parse(content) }
-  } catch {
-    // File doesn't exist or is invalid, return defaults
+  } catch (err) {
+    console.error("Failed to load settings:", err)
     return DEFAULT_SETTINGS
   }
 }

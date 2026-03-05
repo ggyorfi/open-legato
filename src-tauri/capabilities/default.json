@@ -10,7 +10,11 @@
     "dialog:default",
     {
       "identifier": "fs:allow-read-file",
-      "allow": [{ "path": "/**" }]
+      "allow": [{ "path": "/**" }, { "path": "$APPCACHE/**" }]
+    },
+    {
+      "identifier": "fs:allow-read-text-file",
+      "allow": [{ "path": "$CONFIG/open-legato/**" }]
     },
     {
       "identifier": "fs:allow-write-text-file",
@@ -32,6 +36,7 @@
     "core:window:allow-set-fullscreen",
     "core:window:allow-is-fullscreen",
     "core:window:allow-close",
-    "core:path:default"
+    "core:path:default",
+    "keepawake:default"
   ]
 }

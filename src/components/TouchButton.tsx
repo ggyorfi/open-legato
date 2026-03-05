@@ -8,7 +8,8 @@ function colorToRgb(color: string): [number, number, number] {
   if (cached) return cached
   const canvas = document.createElement("canvas")
   canvas.width = canvas.height = 1
-  const ctx = canvas.getContext("2d")!
+  const ctx = canvas.getContext("2d")
+  if (!ctx) return [0, 0, 0]
   ctx.fillStyle = color
   ctx.fillRect(0, 0, 1, 1)
   const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data
@@ -26,8 +27,11 @@ type TouchButtonProps = {
   onSelect?: () => void
   onMove?: (offsetX: number, offsetY: number) => void
   onResize?: (newSize: number) => void
+  onDragMove?: (dx: number, dy: number) => void
   onDragStart?: () => void
   onDragEnd?: () => void
+  onDetails?: () => void
+  dragDeltaOverride?: { x: number; y: number } | null
 }
 
 function getPositionStyles(config: TouchButtonConfig) {
@@ -68,10 +72,17 @@ export const TouchButton = ({
   selected = false,
   onSelect,
   onMove,
+  onDragMove,
   onDragStart,
   onDragEnd,
+  onDetails,
   sizeOverride,
-}: TouchButtonProps & { sizeOverride?: number | null }) => {
+  dragDeltaOverride,
+  children,
+}: TouchButtonProps & {
+  sizeOverride?: number | null
+  children?: React.ReactNode
+}) => {
   const { style: positionStyles, baseTransform } = getPositionStyles(config)
   const [dragDelta, setDragDelta] = useState({ x: 0, y: 0 })
   const [r, g, b] = useMemo(() => colorToRgb(config.color), [config.color])
@@ -92,6 +103,7 @@ export const TouchButton = ({
     const delta = { x: x - startPos.current.x, y: y - startPos.current.y }
     dragDeltaRef.current = delta
     setDragDelta(delta)
+    onDragMove?.(delta.x, delta.y)
   }
 
   const endDrag = () => {
@@ -113,6 +125,7 @@ export const TouchButton = ({
     }
     dragDeltaRef.current = { x: 0, y: 0 }
     setDragDelta({ x: 0, y: 0 })
+    onDragMove?.(0, 0)
   }
 
   const startMouseDrag = (e: React.MouseEvent) => {
@@ -130,7 +143,13 @@ export const TouchButton = ({
     window.addEventListener("mouseup", onMouseUp)
   }
 
-  const alpha = editMode ? (selected ? 0.5 : 0.35) : !visible ? 0 : config.opacity
+  const alpha = editMode
+    ? selected
+      ? 0.5
+      : 0.35
+    : !visible
+      ? 0
+      : config.opacity
   const bgColor = `rgba(${r}, ${g}, ${b}, ${alpha})`
 
   let className = "touch-button"
@@ -138,6 +157,8 @@ export const TouchButton = ({
   if (selected) className += " touch-button--selected"
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: custom touch button component
+    // biome-ignore lint/a11y/useKeyWithClickEvents: custom touch button component
     <div
       className={className}
       onTouchStart={(e) => {
@@ -168,11 +189,44 @@ export const TouchButton = ({
           baseTransform,
           dragDelta.x !== 0 || dragDelta.y !== 0
             ? `translate(${dragDelta.x}px, ${dragDelta.y}px)`
-            : undefined,
+            : dragDeltaOverride && (dragDeltaOverride.x !== 0 || dragDeltaOverride.y !== 0)
+              ? `translate(${dragDeltaOverride.x}px, ${dragDeltaOverride.y}px)`
+              : undefined,
         ]
           .filter(Boolean)
           .join(" "),
       }}
-    />
+    >
+      {children}
+      {editMode && onDetails && (
+        <button
+          type="button"
+          className="touch-button-details"
+          onMouseDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation()
+            onDetails()
+          }}
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            role="img"
+            aria-label="More options"
+          >
+            <circle cx="12" cy="12" r="1" />
+            <circle cx="12" cy="5" r="1" />
+            <circle cx="12" cy="19" r="1" />
+          </svg>
+        </button>
+      )}
+    </div>
   )
 }

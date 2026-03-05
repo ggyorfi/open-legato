@@ -24,7 +24,7 @@ import type { TouchButtonOverride } from "./settings"
 
 export function resolveButtons(
   defaults: TouchButtonConfig[],
-  overrides?: Record<string, TouchButtonOverride>,
+  overrides?: Record<string, TouchButtonOverride>
 ): TouchButtonConfig[] {
   if (!overrides) return defaults
   return defaults.map((btn) => {

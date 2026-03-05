@@ -1,9 +1,12 @@
 import { X } from "lucide-react"
+import { useState } from "react"
 import type { AppSettings } from "../config/settings"
 
 type DocumentSettings = {
   startsOnLeft: boolean | null
   setStartsOnLeft: (value: boolean) => Promise<void>
+  title: string
+  onTitleChange: (title: string) => void
 }
 
 type SettingsPopupProps = {
@@ -19,6 +22,14 @@ export function SettingsPopup({
   documentSettings,
   onClose,
 }: SettingsPopupProps) {
+  const [titleDraft, setTitleDraft] = useState(documentSettings?.title ?? "")
+
+  const commitTitle = () => {
+    if (documentSettings && titleDraft !== documentSettings.title) {
+      documentSettings.onTitleChange(titleDraft)
+    }
+  }
+
   const handleToggle = (key: keyof AppSettings) => {
     onSettingsChange({ ...settings, [key]: !settings[key] })
   }
@@ -36,8 +47,16 @@ export function SettingsPopup({
   return (
     <div
       className="settings-backdrop"
-      onClick={onClose}
-      onKeyDown={(e) => e.key === "Escape" && onClose()}
+      onClick={() => {
+        commitTitle()
+        onClose()
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") {
+          commitTitle()
+          onClose()
+        }
+      }}
       role="dialog"
       aria-modal="true"
       aria-label="Settings"
@@ -74,6 +93,24 @@ export function SettingsPopup({
             </button>
           </label>
 
+          <label className="settings-row">
+            <span className="settings-label">Symmetric pager buttons</span>
+            <button
+              className={`settings-toggle ${settings.mirrorPagerButtons ? "settings-toggle--on" : ""}`}
+              type="button"
+              onClick={() =>
+                onSettingsChange({
+                  ...settings,
+                  mirrorPagerButtons: !settings.mirrorPagerButtons,
+                })
+              }
+              role="switch"
+              aria-checked={!!settings.mirrorPagerButtons}
+            >
+              <span className="settings-toggle-knob" />
+            </button>
+          </label>
+
           <div className="settings-row-center">
             <button
               type="button"
@@ -93,6 +130,17 @@ export function SettingsPopup({
             <>
               <div className="settings-divider" />
               <div className="settings-section-title">Document</div>
+              <label className="settings-row">
+                <span className="settings-label">Title</span>
+                <input
+                  type="text"
+                  className="settings-title-input"
+                  value={titleDraft}
+                  onChange={(e) => setTitleDraft(e.target.value)}
+                  onBlur={commitTitle}
+                  onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+                />
+              </label>
               <label className="settings-row">
                 <span className="settings-label">First page on left</span>
                 <button

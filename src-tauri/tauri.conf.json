@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "open-legato",
-  "version": "0.1.14",
-  "identifier": "com.ggyorfi.open-legato",
+  "version": "0.1.17",
+  "identifier": "app.openlegato.OpenLegato",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "devUrl": "http://localhost:1420",
@@ -19,7 +19,11 @@
       }
     ],
     "security": {
-      "csp": null
+      "csp": null,
+      "assetProtocol": {
+        "enable": true,
+        "scope": ["/**"]
+      }
     }
   },
   "bundle": {
@@ -41,6 +45,11 @@
         "ext": ["pdf"],
         "mimeType": "application/pdf",
         "description": "PDF Document"
+      },
+      {
+        "ext": ["olscore"],
+        "mimeType": "application/x-olscore",
+        "description": "Open Legato Score"
       }
     ],
     "icon": [

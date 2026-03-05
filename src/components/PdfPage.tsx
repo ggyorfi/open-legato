@@ -5,22 +5,25 @@ type PdfPageProps = {
   getPageImageUrl: PdfDocumentApi["getPageImageUrl"]
   pageNum: number
   currentPageNum: number
+  preloadPages?: Set<number>
 }
 
 export const PdfPage = ({
   getPageImageUrl,
   pageNum,
   currentPageNum,
+  preloadPages,
 }: PdfPageProps) => {
-  const [imageUrl, setImageUrl] = useState<string>()
+  const [src, setSrc] = useState<string>()
 
-  // Asymmetric: 4 pages back, 5 pages ahead for smoother navigation
-  const shouldRender =
+  const inWindow =
     pageNum >= currentPageNum - 4 && pageNum <= currentPageNum + 5
+  const shouldRender = inWindow || (preloadPages?.has(pageNum) ?? false)
 
   useEffect(() => {
+    setSrc(undefined)
+
     if (!shouldRender) {
-      setImageUrl(undefined)
       return
     }
 
@@ -29,11 +32,13 @@ export const PdfPage = ({
     ;(async () => {
       try {
         const url = await getPageImageUrl(pageNum)
-        if (!cancelled && url) {
-          setImageUrl(url)
-        }
-      } catch (error) {
-        console.error("Failed to load page image:", error)
+        if (cancelled || !url) return
+        const img = new Image()
+        img.src = url
+        await img.decode()
+        if (!cancelled) setSrc(url)
+      } catch {
+        // Page load failed
       }
     })()
 
@@ -42,13 +47,7 @@ export const PdfPage = ({
     }
   }, [pageNum, shouldRender, getPageImageUrl])
 
-  return (
-    <div className="page-wrap">
-      {shouldRender && imageUrl ? (
-        <img src={imageUrl} alt={`Page ${pageNum + 1}`} draggable={false} />
-      ) : shouldRender ? (
-        <div>Loading...</div>
-      ) : null}
-    </div>
-  )
+  return shouldRender && src ? (
+    <img src={src} alt={`Page ${pageNum + 1}`} draggable={false} />
+  ) : null
 }
