@@ -1,4 +1,5 @@
 import type { LibraryEntry } from "../types/library"
+import { Popup } from "./Popup"
 
 type LibraryBrowserProps = {
   entries: LibraryEntry[]
@@ -27,39 +28,33 @@ export function LibraryBrowser({
   onClose,
 }: LibraryBrowserProps) {
   return (
-    // biome-ignore lint/a11y/noStaticElementInteractions: modal backdrop
-    // biome-ignore lint/a11y/useKeyWithClickEvents: modal backdrop
-    <div className="library-backdrop" onClick={onClose}>
-      {/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation on panel container */}
-      {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation on panel container */}
-      <div className="library-panel" onClick={(e) => e.stopPropagation()}>
-        <div className="library-header">
-          <h2>Library</h2>
-          <button type="button" className="pill-button" onClick={onImportPdf}>
-            Import PDF
-          </button>
+    <Popup
+      title="Library"
+      onClose={onClose}
+      action={
+        <button type="button" className="pill-button" onClick={onImportPdf}>
+          Import PDF
+        </button>
+      }
+    >
+      {entries.length === 0 && (
+        <div className="list-popup-empty">
+          No scores yet. Import a PDF to get started.
         </div>
-        <div className="library-list">
-          {entries.length === 0 && (
-            <div className="library-empty">
-              No scores yet. Import a PDF to get started.
-            </div>
-          )}
-          {entries.map((entry) => (
-            <button
-              type="button"
-              key={entry.id}
-              className="library-item"
-              onClick={() => onOpenScore(entry)}
-            >
-              <span className="library-item-title">{entry.title}</span>
-              <span className="library-item-date">
-                {formatDate(entry.last_opened_at)}
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
+      )}
+      {entries.map((entry) => (
+        <button
+          type="button"
+          key={entry.id}
+          className="list-popup-item"
+          onClick={() => onOpenScore(entry)}
+        >
+          <span className="list-popup-item-title">{entry.title}</span>
+          <span className="list-popup-item-meta">
+            {formatDate(entry.last_opened_at)}
+          </span>
+        </button>
+      ))}
+    </Popup>
   )
 }

@@ -1,5 +1,5 @@
 import { getVersion } from "@tauri-apps/api/app"
-import { BookOpen, LogOut, Move, Repeat, Settings } from "lucide-react"
+import { Bookmark, BookOpen, LogOut, Move, Repeat, Settings } from "lucide-react"
 import { useEffect, useState } from "react"
 
 interface TopToolbarProps {
@@ -8,6 +8,7 @@ interface TopToolbarProps {
   onOpenSettings: () => void
   onToggleEditButtons: () => void
   onToggleAddRepeat: () => void
+  onOpenBookmarks: () => void
   onQuit: () => void
   editButtonsMode: boolean
   addRepeatMode: boolean
@@ -20,6 +21,7 @@ export function TopToolbar({
   onOpenSettings,
   onToggleEditButtons,
   onToggleAddRepeat,
+  onOpenBookmarks,
   onQuit,
   editButtonsMode,
   addRepeatMode,
@@ -64,6 +66,14 @@ export function TopToolbar({
           aria-label="Add repeat"
         >
           <Repeat size={32} />
+        </button>
+        <button
+          type="button"
+          onClick={onOpenBookmarks}
+          className="icon-button"
+          aria-label="Bookmarks"
+        >
+          <Bookmark size={32} />
         </button>
         <button
           type="button"

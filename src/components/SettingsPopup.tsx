@@ -112,6 +112,19 @@ export function SettingsPopup({
           </label>
 
           <label className="settings-row">
+            <span className="settings-label">Hide bookmark icons</span>
+            <button
+              className={`settings-toggle ${settings.hideBookmarkIcons ? "settings-toggle--on" : ""}`}
+              type="button"
+              onClick={() => handleToggle("hideBookmarkIcons")}
+              role="switch"
+              aria-checked={!!settings.hideBookmarkIcons}
+            >
+              <span className="settings-toggle-knob" />
+            </button>
+          </label>
+
+          <label className="settings-row">
             <span className="settings-label">Hide page numbers</span>
             <button
               className={`settings-toggle ${settings.hidePageNumbers ? "settings-toggle--on" : ""}`}

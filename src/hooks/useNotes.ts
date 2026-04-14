@@ -1,22 +1,27 @@
 import { invoke } from "@tauri-apps/api/core"
 import { useCallback, useEffect, useRef, useState } from "react"
-import type { NotesData, RepeatButton } from "../types/library"
+import type { Bookmark, NotesData, RepeatButton } from "../types/library"
+
+const EMPTY_NOTES: NotesData = {
+  format_version: "0.1",
+  repeat_buttons: [],
+  bookmarks: [],
+}
 
 export function useNotes(scoreId: string | undefined) {
-  const [notes, setNotes] = useState<NotesData>({
-    format_version: "0.1",
-    repeat_buttons: [],
-  })
+  const [notes, setNotes] = useState<NotesData>(EMPTY_NOTES)
   const scoreIdRef = useRef(scoreId)
   scoreIdRef.current = scoreId
 
   useEffect(() => {
     if (!scoreId) {
-      setNotes({ format_version: "0.1", repeat_buttons: [] })
+      setNotes(EMPTY_NOTES)
       return
     }
     invoke<NotesData>("read_notes", { scoreId })
-      .then(setNotes)
+      .then((data) =>
+        setNotes({ ...EMPTY_NOTES, ...data, bookmarks: data.bookmarks ?? [] })
+      )
       .catch(console.error)
   }, [scoreId])
 
@@ -87,11 +92,73 @@ export function useNotes(scoreId: string | undefined) {
     [persist]
   )
 
+  const addBookmark = useCallback(
+    (bm: Bookmark) => {
+      setNotes((prev) => {
+        const updated = { ...prev, bookmarks: [...prev.bookmarks, bm] }
+        persist(updated)
+        return updated
+      })
+    },
+    [persist]
+  )
+
+  const updateBookmark = useCallback(
+    (id: string, updates: Partial<Bookmark>) => {
+      setNotes((prev) => {
+        const updated = {
+          ...prev,
+          bookmarks: prev.bookmarks.map((b) =>
+            b.id === id ? { ...b, ...updates } : b
+          ),
+        }
+        persist(updated)
+        return updated
+      })
+    },
+    [persist]
+  )
+
+  const deleteBookmark = useCallback(
+    (id: string) => {
+      setNotes((prev) => {
+        const updated = {
+          ...prev,
+          bookmarks: prev.bookmarks.filter((b) => b.id !== id),
+        }
+        persist(updated)
+        return updated
+      })
+    },
+    [persist]
+  )
+
+  const shiftAllBookmarks = useCallback(
+    (delta: number) => {
+      setNotes((prev) => {
+        const updated = {
+          ...prev,
+          bookmarks: prev.bookmarks.map((b) => ({
+            ...b,
+            page: Math.max(0, b.page + delta),
+          })),
+        }
+        persist(updated)
+        return updated
+      })
+    },
+    [persist]
+  )
+
   return {
     notes,
     addRepeatButton,
     updateRepeatButton,
     deleteRepeatButton,
     shiftAllRepeatButtons,
+    addBookmark,
+    updateBookmark,
+    deleteBookmark,
+    shiftAllBookmarks,
   }
 }

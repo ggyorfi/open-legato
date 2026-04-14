@@ -118,6 +118,14 @@ body,
   right: 30px;
 }
 
+.bookmark-indicator--bm.bookmark-indicator--left {
+  left: 76px;
+}
+
+.bookmark-indicator--bm.bookmark-indicator--right {
+  right: 76px;
+}
+
 .page-blank {
   position: relative;
   flex: 1;
@@ -429,6 +437,7 @@ button {
   justify-content: center;
 }
 
+
 .settings-row {
   display: flex;
   align-items: center;
@@ -505,7 +514,7 @@ button {
 }
 
 /* Library browser */
-.library-backdrop {
+.list-popup-backdrop {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.8);
@@ -515,7 +524,7 @@ button {
   z-index: 250;
 }
 
-.library-panel {
+.list-popup-panel {
   background: #1e1e1e;
   border-radius: 20px;
   width: min(600px, 90vw);
@@ -525,7 +534,7 @@ button {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
-.library-header {
+.list-popup-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -533,27 +542,27 @@ button {
   border-bottom: 1px solid #333;
 }
 
-.library-header h2 {
+.list-popup-header h2 {
   margin: 0;
   font-size: 1.5rem;
   font-weight: 500;
   color: #fff;
 }
 
-.library-list {
+.list-popup-list {
   overflow-y: auto;
   padding: 0.5rem;
   flex: 1;
 }
 
-.library-empty {
+.list-popup-empty {
   padding: 2rem;
   text-align: center;
   color: #888;
   font-size: 1.1rem;
 }
 
-.library-item {
+.list-popup-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -570,28 +579,39 @@ button {
   transition: none;
 }
 
-.library-item:hover {
+.list-popup-item:hover {
   background: #2a2a2a;
   border: none;
 }
 
-.library-item:active {
+.list-popup-item:active {
   background: #333;
   border: none;
 }
 
-.library-item-title {
+.list-popup-item-title {
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.library-item-date {
+.list-popup-item-meta {
   color: #888;
   font-size: 0.85rem;
   margin-left: 1rem;
   white-space: nowrap;
+}
+
+.list-popup-item-row {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding-right: 0.5rem;
+}
+
+.list-popup-item-row .list-popup-item {
+  flex: 1;
 }
 
 .repeat-button--add-mode {

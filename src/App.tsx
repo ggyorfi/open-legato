@@ -7,6 +7,7 @@ import {
   start as keepAwakeStart,
   stop as keepAwakeStop,
 } from "tauri-plugin-keepawake-api"
+import { BookmarkPopup } from "./components/BookmarkPopup"
 import { LibraryBrowser } from "./components/LibraryBrowser"
 import { PointerDebugOverlay } from "./components/PointerDebugOverlay"
 import { SettingsPopup } from "./components/SettingsPopup"
@@ -21,6 +22,7 @@ import {
 import { useNotes } from "./hooks/useNotes"
 import { usePageOrientation } from "./hooks/usePageOrientation"
 import type {
+  Bookmark,
   LibraryEntry,
   RepeatButton,
   ScoreManifest,
@@ -56,6 +58,12 @@ function App() {
     useState<RepeatButton | null>(null)
   const [editLabel, setEditLabel] = useState("")
   const [editTargetPage, setEditTargetPage] = useState("")
+  const [bookmarksOpen, setBookmarksOpen] = useState(false)
+  const [editingBookmark, setEditingBookmark] = useState<Bookmark | null>(null)
+  const [editBookmarkLabel, setEditBookmarkLabel] = useState("")
+  const [addBookmarkPage, setAddBookmarkPage] = useState<number | null>(null)
+  const [addBookmarkLabel, setAddBookmarkLabel] = useState("")
+  const [currentPage, setCurrentPage] = useState<number | null>(null)
   const [mirrorDragDelta, setMirrorDragDelta] = useState<{ x: number; y: number } | null>(null)
   const pdfViewerRef = useRef<PdfViewerHandle>(null)
   const isDraggingRef = useRef(false)
@@ -68,6 +76,10 @@ function App() {
     updateRepeatButton,
     deleteRepeatButton,
     shiftAllRepeatButtons,
+    addBookmark,
+    updateBookmark,
+    deleteBookmark,
+    shiftAllBookmarks,
   } = useNotes(currentScore?.scoreId)
 
   const dualPages = usePageOrientation() === "landscape"
@@ -76,10 +88,17 @@ function App() {
   useEffect(() => {
     const delta = prevOffsetRef.current - pageNumOffset
     prevOffsetRef.current = pageNumOffset
-    if (delta !== 0 && notes.repeat_buttons.length > 0) {
-      shiftAllRepeatButtons(delta)
+    if (delta !== 0) {
+      if (notes.repeat_buttons.length > 0) shiftAllRepeatButtons(delta)
+      if (notes.bookmarks.length > 0) shiftAllBookmarks(delta)
     }
-  }, [pageNumOffset, shiftAllRepeatButtons, notes.repeat_buttons.length])
+  }, [
+    pageNumOffset,
+    shiftAllRepeatButtons,
+    shiftAllBookmarks,
+    notes.repeat_buttons.length,
+    notes.bookmarks.length,
+  ])
   const toDisplayPage = useCallback(
     (internal: number) => internal + 1 + pageNumOffset,
     [pageNumOffset]
@@ -473,6 +492,42 @@ function App() {
     setEditingRepeatButton(null)
   }
 
+  const openBookmarkEdit = (bm: Bookmark) => {
+    setEditingBookmark(bm)
+    setEditBookmarkLabel(bm.label)
+  }
+
+  const confirmEditBookmark = () => {
+    if (!editingBookmark) return
+    updateBookmark(editingBookmark.id, {
+      label: editBookmarkLabel || `Page ${toDisplayPage(editingBookmark.page)}`,
+    })
+    setEditingBookmark(null)
+  }
+
+  const confirmDeleteBookmark = () => {
+    if (!editingBookmark) return
+    deleteBookmark(editingBookmark.id)
+    setEditingBookmark(null)
+  }
+
+  const openAddBookmarkDialog = () => {
+    if (currentPage === null) return
+    setBookmarksOpen(false)
+    setAddBookmarkPage(currentPage)
+    setAddBookmarkLabel(`Page ${toDisplayPage(currentPage)}`)
+  }
+
+  const confirmAddBookmark = () => {
+    if (addBookmarkPage === null) return
+    addBookmark({
+      id: crypto.randomUUID(),
+      page: addBookmarkPage,
+      label: addBookmarkLabel || `Page ${toDisplayPage(addBookmarkPage)}`,
+    })
+    setAddBookmarkPage(null)
+  }
+
   const handleOpenLibraryScore = async (entry: LibraryEntry) => {
     initCancelledRef.current = true
     await openScore(entry.id)
@@ -498,6 +553,7 @@ function App() {
           setPinchSize(null)
         }}
         onToggleAddRepeat={() => setAddRepeatMode((v) => !v)}
+        onOpenBookmarks={() => setBookmarksOpen(true)}
         editButtonsMode={editButtonsMode}
         addRepeatMode={addRepeatMode}
         isVisible={toolbarVisible}
@@ -509,6 +565,11 @@ function App() {
         addRepeatMode={addRepeatMode}
         onAddRepeat={handleAddRepeat}
         repeatButtons={notes.repeat_buttons}
+        bookmarks={notes.bookmarks}
+        hideBookmarkIcons={settings.hideBookmarkIcons}
+        onVisiblePagesChange={(pages) =>
+          setCurrentPage(pages.length > 0 ? pages[0] : null)
+        }
         showTouchButtons={settings.showTouchButtons}
         hidePageNumbers={settings.hidePageNumbers}
         repeatButtonIconMode={settings.repeatButtonIconMode}
@@ -661,7 +722,10 @@ function App() {
               <button
                 type="button"
                 className="pill-button pill-button--secondary quit-confirm-btn"
-                onClick={() => setRepeatPickerState(null)}
+                onClick={() => {
+                  setRepeatPickerState(null)
+                  setAddRepeatMode(false)
+                }}
               >
                 Cancel
               </button>
@@ -675,6 +739,111 @@ function App() {
                 }
               >
                 Add
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {bookmarksOpen && (
+        <BookmarkPopup
+          bookmarks={notes.bookmarks}
+          currentPage={currentPage}
+          toDisplayPage={toDisplayPage}
+          onJump={(page) => pdfViewerRef.current?.goToPage(page)}
+          onEdit={(bm) => {
+            setBookmarksOpen(false)
+            openBookmarkEdit(bm)
+          }}
+          onAdd={openAddBookmarkDialog}
+          onClose={() => setBookmarksOpen(false)}
+        />
+      )}
+      {addBookmarkPage !== null && (
+        // biome-ignore lint/a11y/noStaticElementInteractions: modal backdrop
+        // biome-ignore lint/a11y/useKeyWithClickEvents: modal backdrop
+        <div
+          className="settings-backdrop"
+          onClick={() => setAddBookmarkPage(null)}
+        >
+          {/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation on dialog container */}
+          {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation on dialog container */}
+          <div
+            className="repeat-target-picker"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p>Add Bookmark (page {toDisplayPage(addBookmarkPage)})</p>
+            <label className="repeat-target-picker-field">
+              <span>Label</span>
+              <input
+                type="text"
+                value={addBookmarkLabel}
+                onChange={(e) => setAddBookmarkLabel(e.target.value)}
+                placeholder={`Page ${toDisplayPage(addBookmarkPage)}`}
+              />
+            </label>
+            <div className="quit-confirm-buttons">
+              <button
+                type="button"
+                className="pill-button pill-button--secondary quit-confirm-btn"
+                onClick={() => setAddBookmarkPage(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="pill-button quit-confirm-btn"
+                onClick={confirmAddBookmark}
+              >
+                Add
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {editingBookmark && (
+        // biome-ignore lint/a11y/noStaticElementInteractions: modal backdrop
+        // biome-ignore lint/a11y/useKeyWithClickEvents: modal backdrop
+        <div
+          className="settings-backdrop"
+          onClick={() => setEditingBookmark(null)}
+        >
+          {/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation on dialog container */}
+          {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation on dialog container */}
+          <div
+            className="repeat-target-picker"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p>Edit Bookmark (page {toDisplayPage(editingBookmark.page)})</p>
+            <label className="repeat-target-picker-field">
+              <span>Label</span>
+              <input
+                type="text"
+                value={editBookmarkLabel}
+                onChange={(e) => setEditBookmarkLabel(e.target.value)}
+                placeholder={`Page ${toDisplayPage(editingBookmark.page)}`}
+              />
+            </label>
+            <div className="quit-confirm-buttons repeat-edit-buttons">
+              <button
+                type="button"
+                className="pill-button pill-button--destructive quit-confirm-btn"
+                onClick={confirmDeleteBookmark}
+              >
+                Delete
+              </button>
+              <button
+                type="button"
+                className="pill-button pill-button--secondary quit-confirm-btn"
+                onClick={() => setEditingBookmark(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="pill-button quit-confirm-btn"
+                onClick={confirmEditBookmark}
+              >
+                Save
               </button>
             </div>
           </div>

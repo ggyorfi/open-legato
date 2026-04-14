@@ -139,10 +139,19 @@ pub struct RepeatButton {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Bookmark {
+    pub id: String,
+    pub page: u32,
+    pub label: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NotesData {
     pub format_version: String,
     #[serde(default)]
     pub repeat_buttons: Vec<RepeatButton>,
+    #[serde(default)]
+    pub bookmarks: Vec<Bookmark>,
 }
 
 impl Default for NotesData {
@@ -150,6 +159,7 @@ impl Default for NotesData {
         Self {
             format_version: "0.1".into(),
             repeat_buttons: Vec::new(),
+            bookmarks: Vec::new(),
         }
     }
 }

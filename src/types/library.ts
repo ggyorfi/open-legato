@@ -39,9 +39,16 @@ export type RepeatButton = {
   size: number
 }
 
+export type Bookmark = {
+  id: string
+  page: number
+  label: string
+}
+
 export type NotesData = {
   format_version: string
   repeat_buttons: RepeatButton[]
+  bookmarks: Bookmark[]
 }
 
 export type ScoreRef = {

@@ -11,7 +11,7 @@ import {
 import { usePageOrientation } from "../hooks/usePageOrientation"
 import { usePdfDocument } from "../hooks/usePdfDocument"
 import { Repeat } from "lucide-react"
-import type { RepeatButton, ScoreRef } from "../types/library"
+import type { Bookmark, RepeatButton, ScoreRef } from "../types/library"
 import { PdfPage } from "./PdfPage"
 
 type PdfViewerProps = {
@@ -21,6 +21,8 @@ type PdfViewerProps = {
   onAddRepeat?: (page: number, x: number, y: number) => void
   onVisiblePagesChange?: (pages: number[]) => void
   repeatButtons?: RepeatButton[]
+  bookmarks?: Bookmark[]
+  hideBookmarkIcons?: boolean
   showTouchButtons?: boolean
   hidePageNumbers?: boolean
   repeatButtonIconMode?: boolean
@@ -52,6 +54,8 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(
       onAddRepeat,
       onVisiblePagesChange,
       repeatButtons,
+      bookmarks,
+      hideBookmarkIcons = false,
       showTouchButtons = true,
       hidePageNumbers = false,
       repeatButtonIconMode = false,
@@ -392,6 +396,19 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(
                           <path d="M1 0h12a1 1 0 0 1 1 1v34.2a.5.5 0 0 1-.8.4L7 31.5l-6.2 4.1a.5.5 0 0 1-.8-.4V1a1 1 0 0 1 1-1z" />
                         </svg>
                       )}
+                      {!hideBookmarkIcons &&
+                        bookmarks?.some((bm) => bm.page === page) && (
+                          <svg
+                            className={`bookmark-indicator bookmark-indicator--bm ${isLeft ? "bookmark-indicator--left" : "bookmark-indicator--right"}`}
+                            viewBox="0 0 14 36"
+                            fill="#4da6ff"
+                            xmlns="http://www.w3.org/2000/svg"
+                            role="img"
+                            aria-label="Bookmark"
+                          >
+                            <path d="M1 0h12a1 1 0 0 1 1 1v34.2a.5.5 0 0 1-.8.4L7 31.5l-6.2 4.1a.5.5 0 0 1-.8-.4V1a1 1 0 0 1 1-1z" />
+                          </svg>
+                        )}
                       <PdfPage
                         getPageImageUrl={getPageImageUrl}
                         pageNum={page}

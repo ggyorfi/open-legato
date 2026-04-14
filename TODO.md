@@ -45,7 +45,7 @@
 |---|---------|-------------|
 | ~~1~~ | ~~View: repeat button icon mode~~ | ~~1~~ |
 | ~~2~~ | ~~View: hide page numbers~~ | ~~1~~ |
-| 3 | Document: bookmark manager (+ hide bookmark icons) | 5 |
+| ~~3~~ | ~~Document: bookmark manager (+ hide bookmark icons)~~ | ~~5~~ |
 | 4 | Document: hide pages | 5 |
 | 5 | Library: search | 5 |
 | 6 | IMSLP: browser | 10 |

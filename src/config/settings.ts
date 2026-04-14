@@ -16,6 +16,7 @@ export type AppSettings = {
   mirrorPagerButtons?: boolean
   repeatButtonIconMode?: boolean
   hidePageNumbers?: boolean
+  hideBookmarkIcons?: boolean
   buttonOverrides?: Record<string, TouchButtonOverride>
 }
 
