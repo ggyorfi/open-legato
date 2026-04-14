@@ -3057,7 +3057,7 @@ dependencies = [
 
 [[package]]
 name = "open-legato"
-version = "0.1.17"
+version = "0.1.18"
 dependencies = [
  "evdev",
  "gobject-sys 0.20.10",

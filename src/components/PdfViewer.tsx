@@ -10,6 +10,7 @@ import {
 } from "react"
 import { usePageOrientation } from "../hooks/usePageOrientation"
 import { usePdfDocument } from "../hooks/usePdfDocument"
+import { Repeat } from "lucide-react"
 import type { RepeatButton, ScoreRef } from "../types/library"
 import { PdfPage } from "./PdfPage"
 
@@ -21,6 +22,8 @@ type PdfViewerProps = {
   onVisiblePagesChange?: (pages: number[]) => void
   repeatButtons?: RepeatButton[]
   showTouchButtons?: boolean
+  hidePageNumbers?: boolean
+  repeatButtonIconMode?: boolean
   editButtonsMode?: boolean
   selectedButtonId?: string | null
   onSelectButton?: (id: string | null) => void
@@ -50,6 +53,8 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(
       onVisiblePagesChange,
       repeatButtons,
       showTouchButtons = true,
+      hidePageNumbers = false,
+      repeatButtonIconMode = false,
       editButtonsMode = false,
       selectedButtonId,
       onSelectButton,
@@ -352,11 +357,13 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(
                   const isLeft = dualPages && slotIdx === 0
                   return page === null ? (
                     <div key="blank" className="page-blank">
-                      <span
-                        className={`page-number ${isLeft ? "page-number--left" : "page-number--right"}`}
-                      >
-                        {displayNum}
-                      </span>
+                      {!hidePageNumbers && (
+                        <span
+                          className={`page-number ${isLeft ? "page-number--left" : "page-number--right"}`}
+                        >
+                          {displayNum}
+                        </span>
+                      )}
                     </div>
                   ) : (
                     // biome-ignore lint/a11y/noStaticElementInteractions: page click for repeat placement
@@ -366,11 +373,13 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(
                       className={`page-wrap${addRepeatMode ? " repeat-button--add-mode" : ""}`}
                       onClick={(e) => handlePageClick(page, e)}
                     >
-                      <span
-                        className={`page-number ${isLeft ? "page-number--left" : "page-number--right"}`}
-                      >
-                        {displayNum}
-                      </span>
+                      {!hidePageNumbers && (
+                        <span
+                          className={`page-number ${isLeft ? "page-number--left" : "page-number--right"}`}
+                        >
+                          {displayNum}
+                        </span>
+                      )}
                       {repeatButtons?.some((rb) => rb.target_page === page) && (
                         <svg
                           className={`bookmark-indicator ${isLeft ? "bookmark-indicator--left" : "bookmark-indicator--right"}`}
@@ -456,13 +465,21 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(
                                 onRepeatClick?.(rb)
                               }}
                             >
-                              <div className="repeat-icon">
-                                <span className="repeat-icon-label">
-                                  {rb.label}
-                                </span>
-                                <span className="repeat-icon-target">
-                                  Page {toDisplayPage(rb.target_page)}
-                                </span>
+                              <div
+                                className={`repeat-icon${repeatButtonIconMode ? " repeat-icon--compact" : ""}`}
+                              >
+                                {repeatButtonIconMode ? (
+                                  <Repeat size={30} />
+                                ) : (
+                                  <>
+                                    <span className="repeat-icon-label">
+                                      {rb.label}
+                                    </span>
+                                    <span className="repeat-icon-target">
+                                      Page {toDisplayPage(rb.target_page)}
+                                    </span>
+                                  </>
+                                )}
                               </div>
                               {editButtonsMode && (
                                 <button

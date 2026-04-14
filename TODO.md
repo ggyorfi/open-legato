@@ -39,6 +39,21 @@
 - [ ] Import multiple PDFs into one score (multi-movement)
 - [ ] Export/share .olscore files
 
+## Feature Roadmap (prioritized)
+
+| # | Feature | Est. effort |
+|---|---------|-------------|
+| ~~1~~ | ~~View: repeat button icon mode~~ | ~~1~~ |
+| ~~2~~ | ~~View: hide page numbers~~ | ~~1~~ |
+| 3 | Document: bookmark manager (+ hide bookmark icons) | 5 |
+| 4 | Document: hide pages | 5 |
+| 5 | Library: search | 5 |
+| 6 | IMSLP: browser | 10 |
+| 7 | Library: tags | 5 |
+| 8 | IMSLP: shareable document | 5 |
+| 9 | Annotations / pencil support | 30 |
+| 10 | Integrated group chat | 20 |
+
 ## Rework Impact Map
 
 Files that need modification:

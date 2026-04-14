@@ -111,6 +111,32 @@ export function SettingsPopup({
             </button>
           </label>
 
+          <label className="settings-row">
+            <span className="settings-label">Hide page numbers</span>
+            <button
+              className={`settings-toggle ${settings.hidePageNumbers ? "settings-toggle--on" : ""}`}
+              type="button"
+              onClick={() => handleToggle("hidePageNumbers")}
+              role="switch"
+              aria-checked={!!settings.hidePageNumbers}
+            >
+              <span className="settings-toggle-knob" />
+            </button>
+          </label>
+
+          <label className="settings-row">
+            <span className="settings-label">Show repeat buttons as icon</span>
+            <button
+              className={`settings-toggle ${settings.repeatButtonIconMode ? "settings-toggle--on" : ""}`}
+              type="button"
+              onClick={() => handleToggle("repeatButtonIconMode")}
+              role="switch"
+              aria-checked={!!settings.repeatButtonIconMode}
+            >
+              <span className="settings-toggle-knob" />
+            </button>
+          </label>
+
           <div className="settings-row-center">
             <button
               type="button"

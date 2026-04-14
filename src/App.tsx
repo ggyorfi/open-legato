@@ -12,7 +12,7 @@ import { PointerDebugOverlay } from "./components/PointerDebugOverlay"
 import { SettingsPopup } from "./components/SettingsPopup"
 import { TopToolbar } from "./components/TopToolbar"
 import { TouchButton } from "./components/TouchButton"
-import { type AppSettings, loadSettings, saveSettings } from "./config/settings"
+import { type AppSettings, type TouchButtonOverride, loadSettings, saveSettings } from "./config/settings"
 import {
   type ButtonAction,
   defaultTouchButtons,
@@ -510,6 +510,8 @@ function App() {
         onAddRepeat={handleAddRepeat}
         repeatButtons={notes.repeat_buttons}
         showTouchButtons={settings.showTouchButtons}
+        hidePageNumbers={settings.hidePageNumbers}
+        repeatButtonIconMode={settings.repeatButtonIconMode}
         editButtonsMode={editButtonsMode}
         selectedButtonId={selectedButtonId}
         onSelectButton={setSelectedButtonId}

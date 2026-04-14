@@ -14,6 +14,8 @@ export type TouchButtonOverride = {
 export type AppSettings = {
   showTouchButtons: boolean
   mirrorPagerButtons?: boolean
+  repeatButtonIconMode?: boolean
+  hidePageNumbers?: boolean
   buttonOverrides?: Record<string, TouchButtonOverride>
 }
 
