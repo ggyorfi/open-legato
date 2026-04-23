@@ -52,13 +52,10 @@ const renderPageToCanvas = async (
   const viewport = page.getViewport({ scale })
 
   const canvas = document.createElement("canvas")
-  const context = canvas.getContext("2d")
-  if (!context) throw new Error("Failed to get canvas context")
-
   canvas.width = viewport.width
   canvas.height = viewport.height
 
-  await page.render({ canvasContext: context, viewport, canvas }).promise
+  await page.render({ canvas, viewport }).promise
 
   return canvas
 }

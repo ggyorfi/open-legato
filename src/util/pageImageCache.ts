@@ -19,7 +19,7 @@ const getPageCachePath = async (
   pageNum: number
 ): Promise<string> => {
   const pdfCacheDir = await getPdfCacheDir(contentId)
-  return join(pdfCacheDir, `${pageNum}.webp`)
+  return join(pdfCacheDir, `${pageNum}.png`)
 }
 
 // Check if a cached page image exists
@@ -43,7 +43,7 @@ export const loadCachedPage = async (
   try {
     const cachePath = await getPageCachePath(contentId, pageNum)
     const data = await readFile(cachePath)
-    const blob = new Blob([data], { type: "image/webp" })
+    const blob = new Blob([data], { type: "image/png" })
     return URL.createObjectURL(blob)
   } catch {
     return null
@@ -68,12 +68,13 @@ export const saveCachedPage = async (
     // Directory might already exist, continue
   }
 
-  // Convert canvas to WebP blob
+  // Convert canvas to PNG blob
+  // (WebP encoding via canvas.toBlob is unreliable — e.g. WebKitGTK silently
+  // falls back to PNG data but keeps the image/webp MIME, so decode fails.)
   const blob = await new Promise<Blob>((resolve, reject) => {
     canvas.toBlob(
       (b) => (b ? resolve(b) : reject(new Error("Failed to create blob"))),
-      "image/webp",
-      0.9 // Quality 0.9 for good balance of size/quality
+      "image/png"
     )
   })
 

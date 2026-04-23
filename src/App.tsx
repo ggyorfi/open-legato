@@ -2,6 +2,7 @@ import { PdfViewer, type PdfViewerHandle } from "./components/PdfViewer"
 import "./App.css"
 import { invoke } from "@tauri-apps/api/core"
 import { getCurrentWindow } from "@tauri-apps/api/window"
+import { open } from "@tauri-apps/plugin-dialog"
 import { useCallback, useEffect, useRef, useState } from "react"
 import {
   start as keepAwakeStart,
@@ -647,14 +648,15 @@ function App() {
           entries={libraryEntries}
           onOpenScore={handleOpenLibraryScore}
           onImportPdf={async () => {
-            setLibraryOpen(false)
-            // Small delay to let the library close before opening dialog
-            setTimeout(() => {
-              const toolbar = document.querySelector<HTMLButtonElement>(
-                ".floating-toolbar .pill-button"
-              )
-              toolbar?.click()
-            }, 100)
+            const selected = await open({
+              multiple: false,
+              directory: false,
+              filters: [{ name: "PDF", extensions: ["pdf"] }],
+            })
+            if (typeof selected === "string") {
+              setLibraryOpen(false)
+              await importAndOpenPdf(selected)
+            }
           }}
           onClose={() => setLibraryOpen(false)}
         />

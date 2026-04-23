@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Open Legato
+GenericName=Sheet-music reader
+Comment=Sheet-music reader for musicians
+Exec=open-legato %f
+Icon=dev.sprintster.OpenLegato
+Terminal=false
+Categories=AudioVideo;Audio;Music;
+Keywords=sheet music;score;pdf;piano;
+MimeType=application/pdf;application/x-olscore;
+StartupWMClass=open-legato
