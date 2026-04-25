@@ -13,10 +13,9 @@ finish-args:
   - --device=dri
   - --share=ipc
   - --talk-name=org.freedesktop.portal.Desktop
-  # Read PDFs the user picks. Library writes live in the auto-sandboxed
-  # $XDG_DATA_HOME and need no extra permission.
-  - --filesystem=home:ro
-  # Route GTK file dialogs through xdg-desktop-portal.
+  # No --filesystem=home — files come in via xdg-desktop-portal FileChooser
+  # (mounted at /run/user/<uid>/doc/<token>). Library writes live in the
+  # auto-sandboxed $XDG_DATA_HOME and need no extra permission.
   - --env=GTK_USE_PORTAL=1
 
 build-options:
