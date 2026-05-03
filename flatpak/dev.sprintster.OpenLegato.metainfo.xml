@@ -7,18 +7,15 @@
   <summary>Sheet-music reader for musicians</summary>
   <description>
     <p>
-      Open Legato is a cross-platform sheet-music reader built for pianists and
-      classical musicians. It provides zero-latency page flips, a reliable
-      fullscreen performance mode, and high-quality PDF rendering.
-    </p>
+      Open Legato is a cross-platform sheet-music reader built for musicians. It 
+      provides fast page flips, and fullscreen performance mode. </p>
     <p>Features:</p>
     <ul>
-      <li>Library-based organisation — import PDFs as self-contained score files</li>
-      <li>Fullscreen performance mode with configurable touch buttons</li>
+      <li>Configurable touch buttons</li>
       <li>Dual-page spread mode in landscape orientation</li>
-      <li>Repeat buttons to jump between sections (D.S., Coda, etc.)</li>
-      <li>Bookmarks for fast navigation</li>
-      <li>Non-destructive: PDFs are never modified</li>
+      <li>Repeat buttons to jump between sections</li>
+      <li>Bookmarks</li>
+      <li>Library to open files quickly</li>
     </ul>
   </description>
   <launchable type="desktop-id">dev.sprintster.OpenLegato.desktop</launchable>
@@ -43,29 +40,22 @@
   <content_rating type="oars-1.1"/>
   <screenshots>
     <screenshot type="default">
-      <caption>Dual-page spread in performance mode</caption>
+      <caption>Dual-page performance mode</caption>
       <image>https://raw.githubusercontent.com/ggyorfi/open-legato/v1.0.0/flatpak/screenshots/1.png</image>
     </screenshot>
     <screenshot>
-      <caption>Settings popup — toggle touch buttons, page numbers, bookmarks, and more</caption>
+      <caption>Settings popup</caption>
       <image>https://raw.githubusercontent.com/ggyorfi/open-legato/v1.0.0/flatpak/screenshots/2.png</image>
     </screenshot>
     <screenshot>
-      <caption>Editing a repeat button to jump between sections (D.S., Coda, etc.)</caption>
+      <caption>Editing a repeat button</caption>
       <image>https://raw.githubusercontent.com/ggyorfi/open-legato/v1.0.0/flatpak/screenshots/3.png</image>
     </screenshot>
   </screenshots>
   <releases>
     <release version="1.0.0" date="2026-04-23">
       <description>
-        <p>First stable release. Highlights:</p>
-        <ul>
-          <li>Library-based storage — PDFs are imported into a managed library as non-destructive .olscore archives that keep annotations and settings alongside the original file.</li>
-          <li>Fullscreen performance mode with configurable touch buttons for one-handed page turns.</li>
-          <li>Repeat buttons and bookmarks for fast navigation between sections.</li>
-          <li>Dual-page spread mode that auto-activates in landscape orientation.</li>
-          <li>Disk-cached high-quality PDF rendering for instant page flips.</li>
-        </ul>
+        <p>First stable release</p>
       </description>
     </release>
   </releases>
