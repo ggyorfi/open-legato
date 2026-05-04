@@ -55,6 +55,7 @@ jobs:
         run: flatpak build-bundle repo open-legato.flatpak dev.sprintster.OpenLegato
 
       - run: cp flatpak/open-legato.flatpakrepo repo/
+      - run: echo open-legato.sprintster.dev > repo/CNAME
 
       - uses: actions/upload-artifact@v4
         with:
