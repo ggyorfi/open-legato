@@ -1,0 +1,6 @@
+[Flatpak Repo]
+Title=Open Legato
+Url=https://ggyorfi.github.io/open-legato/
+Description=Self-hosted Flatpak repo for Open Legato.
+Homepage=https://github.com/ggyorfi/open-legato
+DefaultBranch=master
