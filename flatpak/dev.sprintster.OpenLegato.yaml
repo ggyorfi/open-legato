@@ -13,6 +13,8 @@ finish-args:
   - --device=dri
   - --share=ipc
   - --env=GTK_USE_PORTAL=1
+  - --talk-name=org.freedesktop.ScreenSaver
+  - --system-talk-name=org.freedesktop.login1
 
 build-options:
   append-path: /usr/lib/sdk/rust-stable/bin:/usr/lib/sdk/node20/bin
