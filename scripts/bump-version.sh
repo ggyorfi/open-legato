@@ -25,9 +25,12 @@ case "$1" in
 esac
 
 NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+DATE=$(date +%Y-%m-%d)
 
 echo "$CURRENT to $NEW_VERSION"
 
 sed -i "s/\"version\": \"$CURRENT\"/\"version\": \"$NEW_VERSION\"/" "$ROOT_DIR/package.json"
 sed -i "s/\"version\": \"$CURRENT\"/\"version\": \"$NEW_VERSION\"/" "$ROOT_DIR/src-tauri/tauri.conf.json"
 sed -i "s/^version = \"$CURRENT\"/version = \"$NEW_VERSION\"/" "$ROOT_DIR/src-tauri/Cargo.toml"
+
+sed -i "s|  <releases>|  <releases>\n    <release version=\"$NEW_VERSION\" date=\"$DATE\">\n      <description>\n        <p>TODO: release notes</p>\n      </description>\n    </release>|" "$ROOT_DIR/flatpak/dev.sprintster.OpenLegato.metainfo.xml"
