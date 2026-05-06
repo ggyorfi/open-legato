@@ -53,6 +53,11 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="1.0.4" date="2026-05-06">
+      <description>
+        <p>TODO: release notes</p>
+      </description>
+    </release>
     <release version="1.0.0" date="2026-04-23">
       <description>
         <p>First stable release</p>
