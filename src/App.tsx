@@ -14,7 +14,12 @@ import { PointerDebugOverlay } from "./components/PointerDebugOverlay"
 import { SettingsPopup } from "./components/SettingsPopup"
 import { TopToolbar } from "./components/TopToolbar"
 import { TouchButton } from "./components/TouchButton"
-import { type AppSettings, type TouchButtonOverride, loadSettings, saveSettings } from "./config/settings"
+import {
+  type AppSettings,
+  loadSettings,
+  saveSettings,
+  type TouchButtonOverride,
+} from "./config/settings"
 import {
   type ButtonAction,
   defaultTouchButtons,
@@ -30,6 +35,8 @@ import type {
   ScoreRef,
 } from "./types/library"
 
+type PageMode = "none" | "hidePages" | "editButtons" | "addRepeat"
+
 function App() {
   const [currentScore, setCurrentScore] = useState<ScoreRef | undefined>()
   const [scoreTitle, setScoreTitle] = useState<string>("")
@@ -43,11 +50,14 @@ function App() {
     mirrorPagerButtons: false,
   })
   const [startsOnLeft, setStartsOnLeft] = useState<boolean | null>(null)
-  const [editButtonsMode, setEditButtonsMode] = useState(false)
+  const [activeMode, setActiveMode] = useState<PageMode>("none")
   const [quitConfirmOpen, setQuitConfirmOpen] = useState(false)
   const [selectedButtonId, setSelectedButtonId] = useState<string | null>(null)
   const [pinchSize, setPinchSize] = useState<number | null>(null)
-  const [addRepeatMode, setAddRepeatMode] = useState(false)
+  const [blockedHidePage, setBlockedHidePage] = useState<{
+    page: number
+    reasons: string[]
+  } | null>(null)
   const [repeatPickerState, setRepeatPickerState] = useState<{
     page: number
     x: number
@@ -65,14 +75,28 @@ function App() {
   const [addBookmarkPage, setAddBookmarkPage] = useState<number | null>(null)
   const [addBookmarkLabel, setAddBookmarkLabel] = useState("")
   const [currentPage, setCurrentPage] = useState<number | null>(null)
-  const [mirrorDragDelta, setMirrorDragDelta] = useState<{ x: number; y: number } | null>(null)
+  const [mirrorDragDelta, setMirrorDragDelta] = useState<{
+    x: number
+    y: number
+  } | null>(null)
   const pdfViewerRef = useRef<PdfViewerHandle>(null)
   const isDraggingRef = useRef(false)
   const touchActiveRef = useRef(false)
   const initCancelledRef = useRef(false)
 
+  const editButtonsMode = activeMode === "editButtons"
+  const addRepeatMode = activeMode === "addRepeat"
+  const hidePagesMode = activeMode === "hidePages"
+
+  const toggleMode = (mode: PageMode) => {
+    setActiveMode((current) => (current === mode ? "none" : mode))
+    setSelectedButtonId(null)
+    setPinchSize(null)
+  }
+
   const {
     notes,
+    toggleHiddenPage,
     addRepeatButton,
     updateRepeatButton,
     deleteRepeatButton,
@@ -117,16 +141,19 @@ function App() {
   useEffect(() => {
     if (isFullscreen) {
       keepAwakeStart({ display: true, idle: true, sleep: false }).catch(
-        () => { }
+        () => {}
       )
     } else {
-      keepAwakeStop().catch(() => { })
+      keepAwakeStop().catch(() => {})
     }
   }, [isFullscreen])
 
   const handleSettingsChange = (newSettings: AppSettings) => {
     if (newSettings.mirrorPagerButtons && !settings.mirrorPagerButtons) {
-      const resolved = resolveButtons(defaultTouchButtons, newSettings.buttonOverrides)
+      const resolved = resolveButtons(
+        defaultTouchButtons,
+        newSettings.buttonOverrides
+      )
       const left = resolved.find((b) => b.id === "prev-page")
       if (left) {
         newSettings = {
@@ -348,7 +375,10 @@ function App() {
       }
       const mirror = pagerMirror[id]
       if (settings.mirrorPagerButtons && mirror) {
-        overrides[mirror] = { ...settings.buttonOverrides?.[mirror], size: newSize }
+        overrides[mirror] = {
+          ...settings.buttonOverrides?.[mirror],
+          size: newSize,
+        }
       }
       handleSettingsChange({ ...settings, buttonOverrides: overrides })
     }
@@ -419,7 +449,13 @@ function App() {
 
     const onWheel = (e: WheelEvent) => {
       e.preventDefault()
-      if (!editButtonsMode || !selectedButtonId || isDraggingRef.current || touchActiveRef.current) return
+      if (
+        !editButtonsMode ||
+        !selectedButtonId ||
+        isDraggingRef.current ||
+        touchActiveRef.current
+      )
+        return
       const currentSize =
         wheelSizeRef.current ?? findSizeRef.current(selectedButtonId)
       const delta = e.deltaY > 0 ? -10 : 10
@@ -467,7 +503,7 @@ function App() {
       size: 160,
     })
     setRepeatPickerState(null)
-    setAddRepeatMode(false)
+    setActiveMode("none")
   }
 
   const openEditDialog = (rb: RepeatButton) => {
@@ -529,6 +565,27 @@ function App() {
     setAddBookmarkPage(null)
   }
 
+  const handleToggleHiddenPage = (page: number) => {
+    if (!notes.hidden_pages.includes(page)) {
+      const reasons = [
+        ...notes.bookmarks
+          .filter((bm) => bm.page === page)
+          .map((bm) => `Bookmark "${bm.label}"`),
+        ...notes.repeat_buttons
+          .filter((rb) => rb.page === page)
+          .map((rb) => `Repeat button "${rb.label}" sits on this page`),
+        ...notes.repeat_buttons
+          .filter((rb) => rb.target_page === page)
+          .map((rb) => `Repeat button "${rb.label}" jumps to this page`),
+      ]
+      if (reasons.length > 0) {
+        setBlockedHidePage({ page, reasons })
+        return
+      }
+    }
+    toggleHiddenPage(page)
+  }
+
   const handleOpenLibraryScore = async (entry: LibraryEntry) => {
     initCancelledRef.current = true
     await openScore(entry.id)
@@ -543,20 +600,18 @@ function App() {
           setLibraryOpen(true)
         }}
         onOpenSettings={() => {
-            setSettingsOpen(true)
-            setEditButtonsMode(false)
-            setSelectedButtonId(null)
-          }}
-        onQuit={() => setQuitConfirmOpen(true)}
-        onToggleEditButtons={() => {
-          setEditButtonsMode((v) => !v)
+          setSettingsOpen(true)
+          setActiveMode("none")
           setSelectedButtonId(null)
-          setPinchSize(null)
         }}
-        onToggleAddRepeat={() => setAddRepeatMode((v) => !v)}
+        onQuit={() => setQuitConfirmOpen(true)}
+        onToggleEditButtons={() => toggleMode("editButtons")}
+        onToggleAddRepeat={() => toggleMode("addRepeat")}
+        onToggleHidePages={() => toggleMode("hidePages")}
         onOpenBookmarks={() => setBookmarksOpen(true)}
         editButtonsMode={editButtonsMode}
         addRepeatMode={addRepeatMode}
+        hidePagesMode={hidePagesMode}
         isVisible={toolbarVisible}
       />
       <PdfViewer
@@ -568,6 +623,9 @@ function App() {
         repeatButtons={notes.repeat_buttons}
         bookmarks={notes.bookmarks}
         hideBookmarkIcons={settings.hideBookmarkIcons}
+        hidePagesMode={hidePagesMode}
+        hiddenPages={notes.hidden_pages}
+        onToggleHiddenPage={handleToggleHiddenPage}
         onVisiblePagesChange={(pages) =>
           setCurrentPage(pages.length > 0 ? pages[0] : null)
         }
@@ -594,29 +652,32 @@ function App() {
           selectedButtonId === pagerMirror[btn.id]
         const isSelected = selectedButtonId === btn.id || isMirrorSelected
         return (
-        <TouchButton
-          key={btn.id}
-          config={btn}
-          onClick={() => handleButtonAction(btn.action)}
-          visible={settings.showTouchButtons}
-          editMode={editButtonsMode}
-          selected={isSelected}
-          onSelect={() => setSelectedButtonId(btn.id)}
-          onMove={(x, y) => handleButtonMove(btn.id, x, y)}
-          onDragMove={
-            settings.mirrorPagerButtons && pagerMirror[btn.id]
-              ? (dx, dy) => setMirrorDragDelta(dx === 0 && dy === 0 ? null : { x: -dx, y: dy })
-              : undefined
-          }
-          onDragStart={() => {
-            isDraggingRef.current = true
-          }}
-          onDragEnd={() => {
-            isDraggingRef.current = false
-          }}
-          sizeOverride={isSelected ? pinchSize : null}
-          dragDeltaOverride={isMirrorSelected ? mirrorDragDelta : null}
-        />
+          <TouchButton
+            key={btn.id}
+            config={btn}
+            onClick={() => handleButtonAction(btn.action)}
+            visible={settings.showTouchButtons}
+            editMode={editButtonsMode}
+            selected={isSelected}
+            onSelect={() => setSelectedButtonId(btn.id)}
+            onMove={(x, y) => handleButtonMove(btn.id, x, y)}
+            onDragMove={
+              settings.mirrorPagerButtons && pagerMirror[btn.id]
+                ? (dx, dy) =>
+                    setMirrorDragDelta(
+                      dx === 0 && dy === 0 ? null : { x: -dx, y: dy }
+                    )
+                : undefined
+            }
+            onDragStart={() => {
+              isDraggingRef.current = true
+            }}
+            onDragEnd={() => {
+              isDraggingRef.current = false
+            }}
+            sizeOverride={isSelected ? pinchSize : null}
+            dragDeltaOverride={isMirrorSelected ? mirrorDragDelta : null}
+          />
         )
       })}
       {settingsOpen && (
@@ -626,18 +687,18 @@ function App() {
           documentSettings={
             currentScore && pdfViewerRef.current
               ? {
-                startsOnLeft,
-                setStartsOnLeft: pdfViewerRef.current.setStartsOnLeft,
-                title: scoreTitle,
-                onTitleChange: async (title: string) => {
-                  setScoreTitle(title)
-                  const updated = { ...currentScore.manifest, title }
-                  await invoke("update_manifest", {
-                    scoreId: currentScore.scoreId,
-                    manifest: updated,
-                  })
-                },
-              }
+                  startsOnLeft,
+                  setStartsOnLeft: pdfViewerRef.current.setStartsOnLeft,
+                  title: scoreTitle,
+                  onTitleChange: async (title: string) => {
+                    setScoreTitle(title)
+                    const updated = { ...currentScore.manifest, title }
+                    await invoke("update_manifest", {
+                      scoreId: currentScore.scoreId,
+                      manifest: updated,
+                    })
+                  },
+                }
               : undefined
           }
           onClose={() => setSettingsOpen(false)}
@@ -726,7 +787,7 @@ function App() {
                 className="pill-button pill-button--secondary quit-confirm-btn"
                 onClick={() => {
                   setRepeatPickerState(null)
-                  setAddRepeatMode(false)
+                  setActiveMode("none")
                 }}
               >
                 Cancel
@@ -933,6 +994,37 @@ function App() {
                 }
               >
                 Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {blockedHidePage && (
+        /* biome-ignore lint/a11y/noStaticElementInteractions: modal backdrop */
+        /* biome-ignore lint/a11y/useKeyWithClickEvents: modal backdrop */
+        <div
+          className="settings-backdrop"
+          onClick={() => setBlockedHidePage(null)}
+        >
+          {/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation on dialog container */}
+          {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation on dialog container */}
+          <div
+            className="repeat-target-picker"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p>Page {toDisplayPage(blockedHidePage.page)} is still in use</p>
+            <ul className="blocked-hide-reasons">
+              {blockedHidePage.reasons.map((reason) => (
+                <li key={reason}>{reason}</li>
+              ))}
+            </ul>
+            <div className="quit-confirm-buttons">
+              <button
+                type="button"
+                className="pill-button quit-confirm-btn"
+                onClick={() => setBlockedHidePage(null)}
+              >
+                OK
               </button>
             </div>
           </div>

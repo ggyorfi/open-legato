@@ -49,6 +49,7 @@ export type NotesData = {
   format_version: string
   repeat_buttons: RepeatButton[]
   bookmarks: Bookmark[]
+  hidden_pages: number[]
 }
 
 export type ScoreRef = {

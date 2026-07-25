@@ -103,6 +103,7 @@ export const usePdfDocument = (
           data: pdfBytes,
           isOffscreenCanvasSupported: false,
           disableFontFace: false,
+          wasmUrl: "/pdfjs-wasm/",
         })
         const pdf = await loadingTask.promise
         if (cancelled) return

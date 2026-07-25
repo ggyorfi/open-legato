@@ -1,4 +1,5 @@
 import { useDrag } from "@use-gesture/react"
+import { Eye, EyeOff, Repeat } from "lucide-react"
 import {
   forwardRef,
   useCallback,
@@ -10,7 +11,6 @@ import {
 } from "react"
 import { usePageOrientation } from "../hooks/usePageOrientation"
 import { usePdfDocument } from "../hooks/usePdfDocument"
-import { Repeat } from "lucide-react"
 import type { Bookmark, RepeatButton, ScoreRef } from "../types/library"
 import { PdfPage } from "./PdfPage"
 
@@ -23,6 +23,9 @@ type PdfViewerProps = {
   repeatButtons?: RepeatButton[]
   bookmarks?: Bookmark[]
   hideBookmarkIcons?: boolean
+  hidePagesMode?: boolean
+  hiddenPages?: number[]
+  onToggleHiddenPage?: (page: number) => void
   showTouchButtons?: boolean
   hidePageNumbers?: boolean
   repeatButtonIconMode?: boolean
@@ -35,6 +38,12 @@ type PdfViewerProps = {
   onRepeatMove?: (id: string, offsetX: number, offsetY: number) => void
   onDragStart?: () => void
   onDragEnd?: () => void
+}
+
+const findScreenFor = (screens: (number | null)[][], pageNum: number) => {
+  const exact = screens.findIndex((s) => s.includes(pageNum))
+  if (exact >= 0) return exact
+  return screens.findIndex((s) => s.some((p) => p !== null && p > pageNum))
 }
 
 export type PdfViewerHandle = {
@@ -56,6 +65,9 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(
       repeatButtons,
       bookmarks,
       hideBookmarkIcons = false,
+      hidePagesMode = false,
+      hiddenPages,
+      onToggleHiddenPage,
       showTouchButtons = true,
       hidePageNumbers = false,
       repeatButtonIconMode = false,
@@ -88,25 +100,21 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(
     const currentScreenNumRef = useRef(0)
     currentScreenNumRef.current = currentScreenNum
     const trackRef = useRef<HTMLDivElement>(null)
+    const anchorPageRef = useRef<number | null>(null)
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally reset on score change
     useEffect(() => {
       setCurrentScreenNum(0)
+      anchorPageRef.current = null
     }, [scoreRef?.scoreId])
     const [settledScreenNum, setSettledScreenNum] = useState(0)
 
     const dualPages = usePageOrientation() === "landscape"
-    const pagesPerScreen = dualPages ? 2 : 1
 
     const firstPageAlone = dualPages && startsOnLeft === false
 
     const pageNumOffset = dualPages && startsOnLeft === false ? 1 : 0
     const toDisplayPage = (internal: number) => internal + 1 + pageNumOffset
-
-    const screenCount = dualPages
-      ? (firstPageAlone ? 1 : 0) +
-        Math.ceil((totalPages - (firstPageAlone ? 1 : 0)) / 2)
-      : totalPages
 
     useEffect(() => {
       const timeout = setTimeout(() => {
@@ -115,27 +123,34 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(
       return () => clearTimeout(timeout)
     }, [currentScreenNum])
 
-    const screens: (number | null)[][] = []
-    if (dualPages) {
-      if (firstPageAlone) {
-        screens.push([null, 0])
-        for (let pageNum = 1; pageNum < totalPages; pageNum += 2) {
-          const pair: (number | null)[] = [pageNum]
-          pair.push(pageNum + 1 < totalPages ? pageNum + 1 : null)
-          screens.push(pair)
+    const hiddenSet = useMemo(() => new Set(hiddenPages ?? []), [hiddenPages])
+
+    const pageList = useMemo(() => {
+      const pages: number[] = []
+      for (let pageNum = 0; pageNum < totalPages; pageNum++) {
+        if (hidePagesMode || !hiddenSet.has(pageNum)) pages.push(pageNum)
+      }
+      return pages
+    }, [totalPages, hidePagesMode, hiddenSet])
+
+    const screens = useMemo(() => {
+      const laidOut: (number | null)[][] = []
+      if (dualPages) {
+        let cursor = 0
+        if (firstPageAlone && pageList.length > 0) {
+          laidOut.push([null, pageList[0]])
+          cursor = 1
+        }
+        for (; cursor < pageList.length; cursor += 2) {
+          laidOut.push([pageList[cursor], pageList[cursor + 1] ?? null])
         }
       } else {
-        for (let pageNum = 0; pageNum < totalPages; pageNum += 2) {
-          const pair: (number | null)[] = [pageNum]
-          pair.push(pageNum + 1 < totalPages ? pageNum + 1 : null)
-          screens.push(pair)
-        }
+        for (const pageNum of pageList) laidOut.push([pageNum])
       }
-    } else {
-      for (let pageNum = 0; pageNum < totalPages; pageNum++) {
-        screens.push([pageNum])
-      }
-    }
+      return laidOut
+    }, [dualPages, firstPageAlone, pageList])
+
+    const screenCount = screens.length
 
     const goNext = useCallback(
       () => setCurrentScreenNum((prev) => Math.min(prev + 1, screenCount - 1)),
@@ -146,10 +161,12 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(
       []
     )
 
-    // biome-ignore lint/correctness/useExhaustiveDependencies: depends on screen layout, not full screens array
+    const screensRef = useRef(screens)
+    screensRef.current = screens
+
     const goToPage = useCallback(
       (pageNum: number) => {
-        const idx = screens.findIndex((s) => s.includes(pageNum))
+        const idx = findScreenFor(screensRef.current, pageNum)
         if (idx < 0) return
 
         const track = trackRef.current
@@ -166,14 +183,31 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(
         setCurrentScreenNum(idx)
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      [screens.length, firstPageAlone, dualPages]
+      []
     )
 
     const visiblePages =
       screens[currentScreenNum]?.filter((p): p is number => p !== null) ?? []
     const visiblePagesKey = visiblePages.join(",")
+    const pageListKey = pageList.join(",")
+
+    // biome-ignore lint/correctness/useExhaustiveDependencies: re-runs only when the laid-out pages change
+    useEffect(() => {
+      const all = screensRef.current
+      if (all.length === 0) return
+      const anchor = anchorPageRef.current
+      const found = anchor === null ? -1 : findScreenFor(all, anchor)
+      setCurrentScreenNum(
+        found >= 0
+          ? found
+          : Math.min(currentScreenNumRef.current, all.length - 1)
+      )
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pageListKey])
+
     // biome-ignore lint/correctness/useExhaustiveDependencies: keyed by visiblePagesKey to avoid reference identity issues
     useEffect(() => {
+      if (visiblePages.length > 0) anchorPageRef.current = visiblePages[0]
       onVisiblePagesChange?.(visiblePages)
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [visiblePagesKey, onVisiblePagesChange])
@@ -315,7 +349,14 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(
       window.addEventListener("touchend", onEnd)
     }
 
-    // biome-ignore lint/correctness/useExhaustiveDependencies: screens is a local computed value used inside
+    const pagePositions = useMemo(() => {
+      const positions = new Map<number, number>()
+      pageList.forEach((page, index) => {
+        positions.set(page, index)
+      })
+      return positions
+    }, [pageList])
+
     const repeatTargetPages = useMemo(() => {
       const pages = new Set<number>()
       for (const rb of repeatButtons ?? []) {
@@ -341,7 +382,24 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(
       return <div>{error}</div>
     }
 
+    if (pageList.length === 0 && totalPages > 0) {
+      return <div>Every page is hidden</div>
+    }
+
     const translateX = -(currentScreenNum * 100)
+
+    const settledFirstPage = screens[settledScreenNum]?.find(
+      (p): p is number => p !== null
+    )
+    const settledPosition =
+      settledFirstPage === undefined
+        ? 0
+        : (pagePositions.get(settledFirstPage) ?? 0)
+
+    const shouldRenderPage = (page: number) => {
+      const offset = (pagePositions.get(page) ?? 0) - settledPosition
+      return (offset >= -4 && offset <= 5) || repeatTargetPages.has(page)
+    }
 
     return (
       <div {...bind()} className="document-wrap">
@@ -352,12 +410,17 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(
         >
           {screens.map((pages, idx) => {
             const key = `${scoreRef.scoreId}:screen-${idx}`
-            const baseDisplayNum = idx * (dualPages ? 2 : 1) + 1
 
             return (
               <div key={key} className="screen-wrap">
                 {pages.map((page, slotIdx) => {
-                  const displayNum = baseDisplayNum + slotIdx
+                  const neighbour = pages[slotIdx === 0 ? 1 : 0]
+                  const displayNum =
+                    page !== null
+                      ? toDisplayPage(page)
+                      : neighbour == null
+                        ? 0
+                        : toDisplayPage(neighbour) + (slotIdx === 0 ? -1 : 1)
                   const isLeft = dualPages && slotIdx === 0
                   return page === null ? (
                     <div key="blank" className="page-blank">
@@ -374,7 +437,11 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(
                     // biome-ignore lint/a11y/useKeyWithClickEvents: page click for repeat placement
                     <div
                       key={page}
-                      className={`page-wrap${addRepeatMode ? " repeat-button--add-mode" : ""}`}
+                      className={`page-wrap${addRepeatMode ? " repeat-button--add-mode" : ""}${
+                        hidePagesMode && hiddenSet.has(page)
+                          ? " page-wrap--hidden"
+                          : ""
+                      }`}
                       onClick={(e) => handlePageClick(page, e)}
                     >
                       {!hidePageNumbers && (
@@ -412,9 +479,27 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(
                       <PdfPage
                         getPageImageUrl={getPageImageUrl}
                         pageNum={page}
-                        currentPageNum={settledScreenNum * pagesPerScreen}
-                        preloadPages={repeatTargetPages}
+                        shouldRender={shouldRenderPage(page)}
                       />
+                      {hidePagesMode && (
+                        <button
+                          type="button"
+                          className="page-hide-toggle"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            onToggleHiddenPage?.(page)
+                          }}
+                        >
+                          {hiddenSet.has(page) ? (
+                            <EyeOff size={44} />
+                          ) : (
+                            <Eye size={44} />
+                          )}
+                          <span>
+                            {hiddenSet.has(page) ? "Hidden" : "Visible"}
+                          </span>
+                        </button>
+                      )}
                       {repeatButtons
                         ?.filter((rb) => rb.page === page)
                         .map((rb) => {

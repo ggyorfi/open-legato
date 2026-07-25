@@ -1,5 +1,13 @@
 import { getVersion } from "@tauri-apps/api/app"
-import { Bookmark, BookOpen, LogOut, Move, Repeat, Settings } from "lucide-react"
+import {
+  Bookmark,
+  BookOpen,
+  EyeOff,
+  LogOut,
+  Move,
+  Repeat,
+  Settings,
+} from "lucide-react"
 import { useEffect, useState } from "react"
 
 interface TopToolbarProps {
@@ -8,10 +16,12 @@ interface TopToolbarProps {
   onOpenSettings: () => void
   onToggleEditButtons: () => void
   onToggleAddRepeat: () => void
+  onToggleHidePages: () => void
   onOpenBookmarks: () => void
   onQuit: () => void
   editButtonsMode: boolean
   addRepeatMode: boolean
+  hidePagesMode: boolean
   isVisible?: boolean
 }
 
@@ -21,10 +31,12 @@ export function TopToolbar({
   onOpenSettings,
   onToggleEditButtons,
   onToggleAddRepeat,
+  onToggleHidePages,
   onOpenBookmarks,
   onQuit,
   editButtonsMode,
   addRepeatMode,
+  hidePagesMode,
   isVisible = true,
 }: TopToolbarProps) {
   const [version, setVersion] = useState<string>()
@@ -74,6 +86,14 @@ export function TopToolbar({
           aria-label="Bookmarks"
         >
           <Bookmark size={32} />
+        </button>
+        <button
+          type="button"
+          onClick={onToggleHidePages}
+          className={`icon-button${hidePagesMode ? " icon-button--active" : ""}`}
+          aria-label="Hide pages"
+        >
+          <EyeOff size={32} />
         </button>
         <button
           type="button"

@@ -6,6 +6,7 @@ const EMPTY_NOTES: NotesData = {
   format_version: "0.1",
   repeat_buttons: [],
   bookmarks: [],
+  hidden_pages: [],
 }
 
 export function useNotes(scoreId: string | undefined) {
@@ -20,7 +21,12 @@ export function useNotes(scoreId: string | undefined) {
     }
     invoke<NotesData>("read_notes", { scoreId })
       .then((data) =>
-        setNotes({ ...EMPTY_NOTES, ...data, bookmarks: data.bookmarks ?? [] })
+        setNotes({
+          ...EMPTY_NOTES,
+          ...data,
+          bookmarks: data.bookmarks ?? [],
+          hidden_pages: data.hidden_pages ?? [],
+        })
       )
       .catch(console.error)
   }, [scoreId])
@@ -150,8 +156,23 @@ export function useNotes(scoreId: string | undefined) {
     [persist]
   )
 
+  const toggleHiddenPage = useCallback(
+    (page: number) => {
+      setNotes((prev) => {
+        const hidden = prev.hidden_pages.includes(page)
+          ? prev.hidden_pages.filter((p) => p !== page)
+          : [...prev.hidden_pages, page].sort((a, b) => a - b)
+        const updated = { ...prev, hidden_pages: hidden }
+        persist(updated)
+        return updated
+      })
+    },
+    [persist]
+  )
+
   return {
     notes,
+    toggleHiddenPage,
     addRepeatButton,
     updateRepeatButton,
     deleteRepeatButton,

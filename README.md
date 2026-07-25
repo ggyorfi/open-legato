@@ -37,6 +37,41 @@ chmod +x open-legato_*.AppImage
 ./open-legato_*.AppImage
 ```
 
+## Releasing
+
+Releases are built by GitHub Actions. Pushing a `v*.*.*` tag triggers everything, there is no local build step.
+
+Commit the work first, then bump:
+
+```bash
+pnpm bump-version minor    # major|minor|patch
+```
+
+That rewrites `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` and `Cargo.lock`, and adds a `<release>` entry to `flatpak/dev.sprintster.OpenLegato.metainfo.xml` with a `TODO: release notes` placeholder. Replace the placeholder, that text shows up in GNOME Software and other AppStream clients.
+
+If any dependency changed since the last release, regenerate the offline Flatpak sources:
+
+```bash
+./flatpak/update-sources.sh
+```
+
+Commit the bump on its own, then tag and push:
+
+```bash
+git commit -am "v1.1.0"
+git tag v1.1.0
+git push origin main && git push origin v1.1.0
+```
+
+The workflow builds the Flatpak repo and bundle, the `.deb` and the `.AppImage`, attaches all three to a GitHub release, and publishes the repo to the `gh-pages` branch that serves open-legato.sprintster.dev.
+
+To try a Flatpak build locally without releasing:
+
+```bash
+pnpm build:flatpak
+pnpm install:flatpak
+```
+
 ## License
 
 AGPL-3.0-or-later. See [LICENSE](LICENSE).

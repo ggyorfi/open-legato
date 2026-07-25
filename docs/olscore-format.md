@@ -106,6 +106,13 @@ Stores all annotations and user notes. Keyed by PDF filename and page number.
 }
 ```
 
+What the app actually writes today is flatter than the schema above: top-level
+`repeat_buttons`, `bookmarks` and `hidden_pages` arrays. `hidden_pages` holds
+zero-based page indices that are skipped during normal viewing. The pages stay
+in the PDF and keep their page numbers; they are only left out of the page
+layout. Hide-page mode shows every page again so the hidden ones can be toggled
+back.
+
 ### Annotation Types (Planned)
 
 | Type | Description |

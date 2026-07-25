@@ -152,6 +152,8 @@ pub struct NotesData {
     pub repeat_buttons: Vec<RepeatButton>,
     #[serde(default)]
     pub bookmarks: Vec<Bookmark>,
+    #[serde(default)]
+    pub hidden_pages: Vec<u32>,
 }
 
 impl Default for NotesData {
@@ -160,6 +162,7 @@ impl Default for NotesData {
             format_version: "0.1".into(),
             repeat_buttons: Vec::new(),
             bookmarks: Vec::new(),
+            hidden_pages: Vec::new(),
         }
     }
 }

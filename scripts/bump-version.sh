@@ -33,4 +33,6 @@ sed -i "s/\"version\": \"$CURRENT\"/\"version\": \"$NEW_VERSION\"/" "$ROOT_DIR/p
 sed -i "s/\"version\": \"$CURRENT\"/\"version\": \"$NEW_VERSION\"/" "$ROOT_DIR/src-tauri/tauri.conf.json"
 sed -i "s/^version = \"$CURRENT\"/version = \"$NEW_VERSION\"/" "$ROOT_DIR/src-tauri/Cargo.toml"
 
+( cd "$ROOT_DIR/src-tauri" && cargo update --workspace --offline )
+
 sed -i "s|  <releases>|  <releases>\n    <release version=\"$NEW_VERSION\" date=\"$DATE\">\n      <description>\n        <p>TODO: release notes</p>\n      </description>\n    </release>|" "$ROOT_DIR/flatpak/dev.sprintster.OpenLegato.metainfo.xml"

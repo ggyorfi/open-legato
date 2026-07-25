@@ -4,21 +4,15 @@ import type { PdfDocumentApi } from "../hooks/usePdfDocument"
 type PdfPageProps = {
   getPageImageUrl: PdfDocumentApi["getPageImageUrl"]
   pageNum: number
-  currentPageNum: number
-  preloadPages?: Set<number>
+  shouldRender: boolean
 }
 
 export const PdfPage = ({
   getPageImageUrl,
   pageNum,
-  currentPageNum,
-  preloadPages,
+  shouldRender,
 }: PdfPageProps) => {
   const [src, setSrc] = useState<string>()
-
-  const inWindow =
-    pageNum >= currentPageNum - 4 && pageNum <= currentPageNum + 5
-  const shouldRender = inWindow || (preloadPages?.has(pageNum) ?? false)
 
   useEffect(() => {
     setSrc(undefined)

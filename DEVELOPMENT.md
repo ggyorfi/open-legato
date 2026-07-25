@@ -12,9 +12,9 @@ Tauri v2 desktop app. The React frontend handles the UI, PDF rendering (via PDF.
 
 | Layer           | Technology                 |
 | --------------- | -------------------------- |
-| Framework       | Tauri v2.5                 |
+| Framework       | Tauri v2.11                |
 | Frontend        | React 19, TypeScript, Vite |
-| PDF Rendering   | PDF.js (pdfjs-dist v5.4)   |
+| PDF Rendering   | PDF.js (pdfjs-dist v5.7)   |
 | Backend         | Rust                       |
 | Package Manager | pnpm                       |
 
@@ -29,26 +29,34 @@ cd src-tauri && cargo clippy && cargo test  # Rust checks
 
 ## Roadmap
 
-Working today:
+Ticked items are in the app today. The rest is roughly in priority order. `TODO.md` has the effort estimates and the remaining `.olscore` migration detail.
 
-- PDF rendering (PDF.js)
-- Horizontal snap-to-page layout with GPU transforms
-- Page cache: asymmetric sliding window, 9 pages, disk WebP + memory layer
-- Touch/swipe gestures, fullscreen mode, dual-page spread
-- Settings persistence, customizable touch buttons with edit mode
-- Stylus detection (Linux evdev)
-
-Next (MVP v0.1):
-
-- `.olscore` format
-- PDF import + library management
-- Canvas pen tool
-- Annotation persistence
-
-Later:
-
-- Library browser UI (search, tags, thumbnails)
-- More annotation tools (highlight, text, shapes)
-- Undo/redo
-- Setlist manager
-- External pedal mapping (USB/Bluetooth)
+- [x] PDF rendering (PDF.js)
+- [x] Horizontal snap-to-page layout with GPU transforms
+- [x] Page cache: asymmetric sliding window, 4 pages back and 5 ahead, disk PNG + memory layer
+- [x] Touch/swipe gestures, fullscreen mode, dual-page spread
+- [x] Display stays awake in fullscreen
+- [x] Settings persistence, customizable touch buttons with edit mode
+- [x] Stylus detection (Linux evdev)
+- [x] `.olscore` format, PDF import, library list
+- [x] Title picked up from PDF metadata
+- [x] Open a PDF or `.olscore` from the command line
+- [x] Repeat buttons
+- [x] Bookmark manager
+- [x] Hide pages: they stay in the PDF but are skipped while reading
+- [ ] Library index so browsing does not open every `.olscore`
+- [ ] Library search by title and composer
+- [ ] IMSLP browser
+- [ ] Library tags
+- [ ] Shareable `.olscore` export
+- [ ] Delete and rename scores from the library
+- [ ] Thumbnails in the library browser
+- [ ] Canvas pen tool
+- [ ] Annotation persistence in notes.json
+- [ ] Highlight, text and shape tools
+- [ ] Undo/redo for annotations
+- [ ] Multiple PDFs in one score (multi-movement)
+- [ ] Setlist manager
+- [ ] External pedal mapping (USB/Bluetooth)
+- [ ] Render scale that follows the window size
+- [ ] Integrated group chat
